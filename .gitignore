@@ -1,0 +1,54 @@
+# User-provided cartridge ROMs and BIOS images (copyrighted; never commit).
+variants/*/roms/
+*.gba
+*.GBA
+
+# Generated code is derived from the ROM and regenerated locally.
+variants/*/generated/*.c
+variants/*/generated/*.cpp
+variants/*/generated/*.h
+variants/*/generated/*.json
+
+# Runtime output.
+saves/
+recomp_cache/
+recomp_cache*/
+*.sav
+*.srm
+*.fla
+*.flash
+recomp_coverage*.json
+recomp_master_misses*.toml.frag
+recomp_seed_proposals.toml
+hang_trace.csv
+
+# Build and release output.
+build/
+build-*/
+.bldtmp/
+release-stage/
+*.exe
+*.dll
+*.pdb
+*.obj
+*.log
+*.bmp
+*.png
+*.csv
+*.frag
+
+# Per-user runtime configuration.
+bios.cfg
+rom.cfg
+keybinds.ini
+*.local.toml
+*.local.ini
+
+# IDE / OS.
+.vs/
+.vscode/
+.idea/
+__pycache__/
+.DS_Store
+Thumbs.db
+

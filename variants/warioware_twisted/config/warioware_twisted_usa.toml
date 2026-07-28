@@ -1,0 +1,11 @@
+# USA identity/save overrides layered over ../game.toml by the runtime.
+
+[rom]
+sha1 = "f0102d0d6f7596fe853d5d0a94682718278e083a"
+
+[save]
+type = "sram"
+size = "0x8000"
+
+[quirks]
+
