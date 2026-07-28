@@ -8,11 +8,9 @@ and cartridge gyro/rumble wire protocol are in place. PC gyro input is simulated
 with horizontal mouse dragging, and headless tests can use a deterministic
 sensor sweep.
 
-The interpreter backend is temporarily selected by the game launcher because
-the current static translation stalls during early boot. This is a compatibility
-bring-up mode: the native runtime, PPU, audio, input, save, BIOS, and cartridge
-devices remain active while ARM instructions use the reference interpreter.
-Set `GBARECOMP_FORCE_INTERP=0` to exercise the experimental static path.
+Static cart recompilation is the default. Code copied to EWRAM/IWRAM at runtime
+uses gbarecomp's RAM dispatch/self-heal path. Set `GBARECOMP_FORCE_INTERP=1`
+only when the reference interpreter is useful for diagnostics.
 
 ## Pinned cartridge
 
@@ -85,6 +83,31 @@ not connected to host vibration yet. Android sensor and haptics work remains
 future work; the provider boundary is described in
 [`docs/gyro-plan.md`](docs/gyro-plan.md).
 
+## Attract-mode verification
+
+The deterministic acceptance route dismisses the health-and-safety screen at
+frame 300, skips the opening story at frame 620, keeps the gyro centered through
+the cartridge's calibration screen, reaches the title by frame 1,200, then
+leaves input neutral. The title times out into its animated attract loop by
+frame 3,000.
+
+```powershell
+.\tools\verify-attract.ps1
+```
+
+The script requires the native executable to be built. It runs with an isolated
+temporary SRAM file and the normal development self-heal cache, requires zero
+unmapped and unhandled I/O accesses, checks the final PPU frame count, and
+verifies the rendered attract framebuffer hash. Static recompilation is
+verified by default; pass `-Interpreter` to compare the reference backend.
+Pass `-ColdCache` to audit first-run static coverage with a new cache. Artifacts
+are written under `build/attract-verify/`.
+
+A completely cold self-heal cache currently reaches an unresolved static
+coverage bridge around ROM addresses `0x080013EC`/`0x080013F8` during startup.
+The normal development-cache static route and the reference interpreter both
+reach attract mode; closing this cold-cache gap is the next engine task.
+
 ## Current validation
 
 - ROM generation: 2,839 functions (4 ARM, 2,835 Thumb), 16 shards
@@ -93,3 +116,6 @@ future work; the provider boundary is described in
 - 60-frame real-BIOS and HLE-BIOS headless runs complete with no unmapped or
   unhandled I/O accesses
 - A rendered frame reaches the WarioWare health-and-safety screen
+- Static recompilation reaches the title at frame 1,200 and the animated
+  no-input attract loop at frame 3,000 with a framebuffer matching the
+  reference interpreter

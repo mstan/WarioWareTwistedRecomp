@@ -36,6 +36,7 @@ release-stage/
 *.png
 *.csv
 *.frag
+!tests/attract-input.csv
 
 # Per-user runtime configuration.
 bios.cfg
@@ -51,4 +52,3 @@ keybinds.ini
 __pycache__/
 .DS_Store
 Thumbs.db
-

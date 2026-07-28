@@ -1,0 +1,10 @@
+# gbarecomp-keyinput-v1
+# frame,keyinput_active_low
+# Dismiss the health-and-safety screen, then skip the opening story to the
+# title screen. All later frames remain neutral so the title can time out into
+# its attract loop without starting a save file.
+0,0x03FF
+300,0x03FE
+306,0x03FF
+620,0x03F7
+626,0x03FF

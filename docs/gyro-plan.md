@@ -16,6 +16,11 @@ Implemented:
 - Headless input: `GBARECOMP_GYRO_TEST=sweep` provides a deterministic triangle
   wave; a numeric value supplies a fixed signed offset
 
+The game performs a real cartridge calibration during startup and explicitly
+asks the player not to move the system. Use `GBARECOMP_GYRO_TEST=0` through
+that screen. Starting the continuous sweep at boot intentionally looks like a
+moving handheld and prevents calibration from completing.
+
 Remaining:
 
 - Tune PC sensitivity and calibration from playtesting

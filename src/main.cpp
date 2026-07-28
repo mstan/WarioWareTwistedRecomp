@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 
 #include "runtime.h"
@@ -29,17 +28,8 @@ void print_usage() {
         "The BIOS and ROM must match the SHA-1 identities in game.toml.\n"
         "Hold the left mouse button and drag horizontally to simulate gyro "
         "motion.\n"
-        "The interpreter backend is the temporary compatibility default; set "
-        "GBARECOMP_FORCE_INTERP=0 to test static recompilation.\n");
-}
-
-void apply_compatibility_defaults() {
-    if (std::getenv("GBARECOMP_FORCE_INTERP")) return;
-#ifdef _WIN32
-    _putenv_s("GBARECOMP_FORCE_INTERP", "1");
-#else
-    setenv("GBARECOMP_FORCE_INTERP", "1", 0);
-#endif
+        "Static recompilation is the default; set GBARECOMP_FORCE_INTERP=1 "
+        "for the reference interpreter diagnostic backend.\n");
 }
 
 }  // namespace
@@ -52,8 +42,6 @@ int main(int argc, char** argv) {
             return 0;
         }
     }
-
-    apply_compatibility_defaults();
 
     gbarecomp::RunOptions opts;
     opts.builtin_game_name = GBARECOMP_BUILTIN_NAME;
