@@ -6,6 +6,11 @@
 
 #include "runtime.h"
 
+#if defined(__ANDROID__)
+#include <SDL_system.h>
+#include <unistd.h>
+#endif
+
 #if defined(GBAGAME_RECOMP_UI)
 #include "game_launcher_boot.h"
 #endif
@@ -52,7 +57,15 @@ void print_usage() {
 
 }  // namespace
 
-int main(int argc, char** argv) {
+int warioware_main(int argc, char** argv) {
+#if defined(__ANDROID__)
+    // SDLActivity installs assets in the app's private files directory. Make
+    // that the process root so the existing desktop config/launcher seam can
+    // use the same relative layout without Android-only path plumbing.
+    if (const char* storage = SDL_AndroidGetInternalStoragePath())
+        chdir(storage);
+    set_environment_default("GBARECOMP_SELFHEAL_RECOMPILE", "0");
+#endif
     for (int i = 1; i < argc; ++i) {
         if (std::strcmp(argv[i], "--help") == 0 ||
             std::strcmp(argv[i], "-h") == 0) {
@@ -89,6 +102,9 @@ int main(int argc, char** argv) {
 
 #if defined(GBAGAME_RECOMP_UI)
     std::vector<std::string> args(argv, argv + argc);
+#if defined(__ANDROID__)
+    if (!args.empty()) args[0] = "./WarioWareTwistedRecomp";
+#endif
     if (game_launcher_preboot(args, opts)) return 0;
     std::vector<char*> av;
     av.reserve(args.size());
@@ -98,3 +114,13 @@ int main(int argc, char** argv) {
     return gbarecomp::run_game(argc, argv, opts);
 #endif
 }
+
+#if defined(__ANDROID__)
+extern "C" int SDL_main(int argc, char** argv) {
+    return warioware_main(argc, argv);
+}
+#else
+int main(int argc, char** argv) {
+    return warioware_main(argc, argv);
+}
+#endif

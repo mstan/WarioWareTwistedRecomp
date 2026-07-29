@@ -25,9 +25,14 @@ hang_trace.csv
 # Build and release output.
 build/
 build-*/
+.gradle/
+android/local.properties
+android/.cxx/
+android/app/.cxx/
 .bldtmp/
 release-stage/
 *.exe
+*.apk
 *.dll
 *.pdb
 *.obj

@@ -37,9 +37,15 @@ function(add_gba_variant TARGET NAME PORT WIN_TITLE GAME_NAME ROM_SHA1 ROM_CRC32
         "${VARIANT_DIR}/generated/*.c"
         "${VARIANT_DIR}/generated/*.cpp")
 
-    add_executable(${TARGET}
-        src/main.cpp
-        ${VARIANT_GENERATED})
+    if(ANDROID)
+        add_library(${TARGET} SHARED
+            src/main.cpp
+            ${VARIANT_GENERATED})
+    else()
+        add_executable(${TARGET}
+            src/main.cpp
+            ${VARIANT_GENERATED})
+    endif()
 
     set(VARIANT_RECOMPILED_SOURCES ${VARIANT_GENERATED})
     list(FILTER VARIANT_RECOMPILED_SOURCES INCLUDE REGEX
@@ -81,8 +87,14 @@ function(add_gba_variant TARGET NAME PORT WIN_TITLE GAME_NAME ROM_SHA1 ROM_CRC32
     endif()
 endfunction()
 
+if(ANDROID)
+    set(WARIOWARE_TARGET main)
+else()
+    set(WARIOWARE_TARGET WarioWareTwistedRecomp)
+endif()
+
 add_gba_variant(
-    WarioWareTwistedRecomp
+    ${WARIOWARE_TARGET}
     warioware_twisted
     19876
     "WarioWareTwistedRecomp"
@@ -96,14 +108,17 @@ option(GBAGAME_RECOMP_UI "Build the recomp-ui pre-boot launcher" ON)
 if(GBAGAME_RECOMP_UI)
     include(${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui/recomp_ui.cmake)
     add_library(game_launcher_ui STATIC src/game_launcher_boot.cpp)
+    set_target_properties(game_launcher_ui PROPERTIES
+        POSITION_INDEPENDENT_CODE ON)
     target_include_directories(game_launcher_ui PRIVATE
         "${GBARECOMP_ROOT}/src/runtime"
         "${GBARECOMP_ROOT}/src/gba"
         src)
     recomp_target_launcher_ui(game_launcher_ui CONSOLE gba)
-    find_package(SDL2 REQUIRED)
+    if(NOT TARGET SDL2::SDL2)
+        find_package(SDL2 REQUIRED)
+    endif()
     target_link_libraries(game_launcher_ui PUBLIC SDL2::SDL2)
-    target_link_libraries(WarioWareTwistedRecomp PRIVATE game_launcher_ui)
-    set_property(SOURCE src/main.cpp APPEND PROPERTY
-        COMPILE_DEFINITIONS GBAGAME_RECOMP_UI)
+    target_link_libraries(${WARIOWARE_TARGET} PRIVATE game_launcher_ui)
+    target_compile_definitions(${WARIOWARE_TARGET} PRIVATE GBAGAME_RECOMP_UI)
 endif()

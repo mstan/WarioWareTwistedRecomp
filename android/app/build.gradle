@@ -1,0 +1,61 @@
+plugins {
+    id "com.android.application"
+}
+
+def gameRoot = rootDir.parentFile
+def engineRoot = new File(gameRoot.parentFile, "gbarecomp-warioware-twisted")
+def sdlRoot = new File(gameRoot, "android/third_party/SDL")
+
+android {
+    namespace "com.mstan.wariowaretwisted"
+    compileSdk 35
+    ndkVersion "27.1.12297006"
+
+    defaultConfig {
+        applicationId "com.mstan.wariowaretwisted"
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName "0.1.0"
+
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared",
+                          "-DGBARECOMP_ROOT=${engineRoot.absolutePath.replace('\\', '/')}",
+                          "-DGBAGAME_RECOMP_UI=ON"
+                cppFlags "-O2"
+                abiFilters "arm64-v8a"
+                targets "main"
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path file("src/main/cpp/CMakeLists.txt")
+            version "3.22.1"
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDir new File(sdlRoot,
+                "android-project/app/src/main/java")
+        }
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+}
