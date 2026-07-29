@@ -4,3 +4,7 @@
 [submodule "android/third_party/SDL"]
 	path = android/third_party/SDL
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "gbarecomp"]
+	path = gbarecomp
+	url = https://github.com/mstan/gbarecomp.git
+	branch = main

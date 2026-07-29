@@ -30,8 +30,8 @@ committed.
 
 ## Local layout
 
-- Engine worktree: `../gbarecomp-warioware-twisted`
-- Launcher: `recomp-ui/` (git submodule; developed on its own worktree branch)
+- Engine: `gbarecomp/` (git submodule)
+- Launcher: `recomp-ui/` (git submodule)
 - Game ROM: `variants/warioware_twisted/roms/warioware_twisted_usa.gba`
 - Game config: `variants/warioware_twisted/game.toml`
 - Generated translation: `variants/warioware_twisted/generated/`
@@ -44,10 +44,10 @@ From PowerShell with CMake, Ninja, MinGW-w64, and SDL2 available:
 git submodule update --init --recursive
 
 & C:\msys64\mingw64\bin\cmake.exe `
-    -S ..\gbarecomp-warioware-twisted `
-    -B ..\gbarecomp-warioware-twisted\build-native -G Ninja
+    -S .\gbarecomp `
+    -B .\gbarecomp\build-native -G Ninja
 & C:\msys64\mingw64\bin\cmake.exe `
-    --build ..\gbarecomp-warioware-twisted\build-native `
+    --build .\gbarecomp\build-native `
     --target gba_recompile
 
 .\tools\regen.ps1
@@ -55,8 +55,20 @@ git submodule update --init --recursive
 & C:\msys64\mingw64\bin\cmake.exe -S . -B build -G Ninja `
     -DCMAKE_BUILD_TYPE=Release
 & C:\msys64\mingw64\bin\cmake.exe `
-    --build build --target WarioWareTwistedRecomp
+    --build build --target WarioWareTwistedRecomp --parallel 2
 ```
+
+To make the Windows release zip (desktop only):
+
+```powershell
+.\tools\make_release.ps1 -Version 0.0.1
+```
+
+The release packager rejects ROM, BIOS, save, and APK files before creating
+the archive. It stages only the compiled DLL portion of the validated warm
+overlay cache under both supported compiler backends; ROM-derived cache source
+and logs are excluded. The experimental Android project is not part of desktop
+releases.
 
 Run from the project root so the relative config and asset paths resolve:
 

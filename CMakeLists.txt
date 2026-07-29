@@ -5,10 +5,10 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Local development uses the dedicated engine worktree created beside this
-# project. A different checkout can be selected at configure time.
+# Releases use the pinned engine submodule. A different checkout (for example,
+# a feature worktree) can still be selected at configure time.
 set(GBARECOMP_ROOT
-    "${CMAKE_CURRENT_SOURCE_DIR}/../gbarecomp-warioware-twisted"
+    "${CMAKE_CURRENT_SOURCE_DIR}/gbarecomp"
     CACHE PATH "Path to the gbarecomp platform-core checkout")
 
 if(NOT EXISTS "${GBARECOMP_ROOT}/CMakeLists.txt")
