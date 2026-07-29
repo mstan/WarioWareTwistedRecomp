@@ -18,6 +18,11 @@ if(NOT EXISTS "${GBARECOMP_ROOT}/CMakeLists.txt")
         "Pass -DGBARECOMP_ROOT=<path> when configuring.")
 endif()
 
+# Share recomp-ui's in-game model with the platform runtime, matching the
+# Minish Cap integration. The pre-boot launcher itself is linked below.
+set(GBARECOMP_RUNTIME_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui"
+    CACHE PATH "recomp-ui root used by the live GBA runtime adapter")
+
 add_subdirectory("${GBARECOMP_ROOT}" gbarecomp_build EXCLUDE_FROM_ALL)
 
 function(add_gba_variant TARGET NAME PORT WIN_TITLE GAME_NAME ROM_SHA1 ROM_CRC32)
@@ -41,7 +46,7 @@ function(add_gba_variant TARGET NAME PORT WIN_TITLE GAME_NAME ROM_SHA1 ROM_CRC32
         "/recompiled_[0-9]+\\.cpp$")
     if(VARIANT_RECOMPILED_SOURCES)
         set_source_files_properties(${VARIANT_RECOMPILED_SOURCES} PROPERTIES
-            COMPILE_OPTIONS "-O1;-g0")
+            COMPILE_OPTIONS "-O2;-g0")
     endif()
 
     target_include_directories(${TARGET} PRIVATE
@@ -85,3 +90,20 @@ add_gba_variant(
     "f0102d0d6f7596fe853d5d0a94682718278e083a"
     0)
 
+# recomp-ui pre-boot launcher. Keep its large source set and RECOMP_LAUNCHER
+# define isolated from the generated guest shards.
+option(GBAGAME_RECOMP_UI "Build the recomp-ui pre-boot launcher" ON)
+if(GBAGAME_RECOMP_UI)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui/recomp_ui.cmake)
+    add_library(game_launcher_ui STATIC src/game_launcher_boot.cpp)
+    target_include_directories(game_launcher_ui PRIVATE
+        "${GBARECOMP_ROOT}/src/runtime"
+        "${GBARECOMP_ROOT}/src/gba"
+        src)
+    recomp_target_launcher_ui(game_launcher_ui CONSOLE gba)
+    find_package(SDL2 REQUIRED)
+    target_link_libraries(game_launcher_ui PUBLIC SDL2::SDL2)
+    target_link_libraries(WarioWareTwistedRecomp PRIVATE game_launcher_ui)
+    set_property(SOURCE src/main.cpp APPEND PROPERTY
+        COMPILE_DEFINITIONS GBAGAME_RECOMP_UI)
+endif()

@@ -4,8 +4,9 @@ PC bring-up of **WarioWare: Twisted!** (Game Boy Advance, USA) on
 [`gbarecomp`](https://github.com/mstan/gbarecomp).
 
 The ROM identity gate, SRAM save, 16-shard generated translation, native runner,
-and cartridge gyro/rumble wire protocol are in place. PC gyro input is simulated
-with horizontal mouse dragging, and headless tests can use a deterministic
+and cartridge gyro/rumble wire protocol are in place. SDL controller motion
+sensors (including the PlayStation 5 DualSense) drive the gyro on PC, horizontal
+mouse dragging remains a fallback, and headless tests can use a deterministic
 sensor sweep.
 
 Static cart recompilation is the default. Code copied to EWRAM/IWRAM at runtime
@@ -30,6 +31,7 @@ committed.
 ## Local layout
 
 - Engine worktree: `../gbarecomp-warioware-twisted`
+- Launcher: `recomp-ui/` (git submodule; developed on its own worktree branch)
 - Game ROM: `variants/warioware_twisted/roms/warioware_twisted_usa.gba`
 - Game config: `variants/warioware_twisted/game.toml`
 - Generated translation: `variants/warioware_twisted/generated/`
@@ -39,6 +41,8 @@ committed.
 From PowerShell with CMake, Ninja, MinGW-w64, and SDL2 available:
 
 ```powershell
+git submodule update --init --recursive
+
 & C:\msys64\mingw64\bin\cmake.exe `
     -S ..\gbarecomp-warioware-twisted `
     -B ..\gbarecomp-warioware-twisted\build-native -G Ninja
@@ -48,7 +52,8 @@ From PowerShell with CMake, Ninja, MinGW-w64, and SDL2 available:
 
 .\tools\regen.ps1
 
-& C:\msys64\mingw64\bin\cmake.exe -S . -B build -G Ninja
+& C:\msys64\mingw64\bin\cmake.exe -S . -B build -G Ninja `
+    -DCMAKE_BUILD_TYPE=Release
 & C:\msys64\mingw64\bin\cmake.exe `
     --build build --target WarioWareTwistedRecomp
 ```
@@ -60,13 +65,23 @@ Run from the project root so the relative config and asset paths resolve:
     variants\warioware_twisted\game.toml
 ```
 
+Windowed runs open the shared `recomp-ui` pre-boot launcher. Use
+`--no-launcher` to skip it once or `--launcher` to override a persisted
+skip-launcher preference.
+
 Controls:
 
-- D-pad: arrow keys
-- A / B: `Z` / `X`
-- Start / Select: Enter / Backspace
-- Gyro: hold the left mouse button and drag horizontally; faster motion
-  produces a larger angular-rate sample and releasing returns it to center
+- Keyboard D-pad: arrow keys
+- Keyboard A / B: `X` / `Z`
+- Keyboard Start / Select: Enter / Right Shift
+- Controller: D-pad, south/east face buttons, Options/Create, and L1/R1
+- Controller gyro: twist the controller like a steering wheel. A supported
+  sensor is detected and enabled automatically.
+- Mouse gyro fallback: hold the left button and drag horizontally.
+
+The launcher's `CONTROLLER -> Configure -> MOTION` card controls gyro
+sensitivity from `0.25x` to `4.00x` and persists it beside the executable.
+The equivalent command-line option is `--gyro-sensitivity <value>`.
 
 For a reproducible headless gyro run:
 

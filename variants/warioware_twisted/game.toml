@@ -25,7 +25,10 @@ md5 = "89579f4dfe1ed24a7cd16a6a61a72a17"
 [bios]
 path = "../../../gbarecomp-warioware-twisted/bios/gba_bios.bin"
 sha1 = "300c20df6731a33952ded8c436f7f186d25d3492"
-hle = false
+# The static real-BIOS path currently stalls at the BIOS-to-cartridge handoff.
+# Boot HLE skips only the intro; the real recompiled BIOS remains available for
+# IRQ dispatch and unhandled SWIs during gameplay.
+hle = true
 
 [rom]
 path = "roms/warioware_twisted_usa.gba"
@@ -47,3 +50,12 @@ resize_view = false
 
 [audio]
 shadow = false
+
+# IRQ-time MP2K DMA restart callback. DMA2 completion reaches it through the
+# runtime-copied IWRAM IRQ dispatcher, so the cartridge's direct call graph
+# cannot discover it. Declare it explicitly to keep that hot audio path native.
+[[extra_func]]
+addr = 0x0812ED40
+mode = "thumb"
+name = "m4aSoundVSync"
+note = "IRQ callback reloads DMA1/DMA2 when the PCM buffer period expires"
