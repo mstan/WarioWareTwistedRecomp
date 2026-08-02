@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -36,6 +37,9 @@ import java.util.concurrent.Executors;
 public final class SetupActivity extends Activity {
     private static final int PICK_BIOS = 1001;
     private static final int PICK_ROM = 1002;
+    private static final String SETUP_PREFERENCES = "setup";
+    private static final String SKIP_LAUNCHER_ON_BOOT =
+        "skip_launcher_on_boot";
     private static final long BIOS_SIZE = 16 * 1024;
     private static final long ROM_SIZE = 16 * 1024 * 1024;
     private static final String BIOS_SHA1 =
@@ -50,6 +54,7 @@ public final class SetupActivity extends Activity {
     private Button playButton;
     private Button biosButton;
     private Button romButton;
+    private CheckBox skipLauncherCheck;
     private boolean biosReady;
     private boolean romReady;
 
@@ -65,6 +70,9 @@ public final class SetupActivity extends Activity {
         setContentView(buildContent());
         enterImmersiveMode();
         refreshStatus();
+        if (biosReady && romReady && skipLauncherOnBoot()) {
+            launchGame();
+        }
     }
 
     @Override
@@ -122,6 +130,10 @@ public final class SetupActivity extends Activity {
     }
 
     private View buildContent() {
+        LinearLayout page = new LinearLayout(this);
+        page.setOrientation(LinearLayout.VERTICAL);
+        page.setBackgroundColor(Color.rgb(9, 11, 24));
+
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         scroll.setBackgroundColor(Color.rgb(9, 11, 24));
@@ -129,38 +141,40 @@ public final class SetupActivity extends Activity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER_HORIZONTAL);
-        root.setPadding(dp(36), dp(22), dp(36), dp(28));
+        root.setPadding(dp(36), dp(14), dp(36), dp(10));
         scroll.addView(root, new ScrollView.LayoutParams(
             ScrollView.LayoutParams.MATCH_PARENT,
             ScrollView.LayoutParams.WRAP_CONTENT));
+        page.addView(scroll, new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
 
         TextView eyebrow = text("ANDROID EDITION", 12, Color.rgb(78, 216, 255));
         eyebrow.setTypeface(Typeface.DEFAULT_BOLD);
         eyebrow.setLetterSpacing(0.16f);
         root.addView(eyebrow);
 
-        TextView title = text(getString(R.string.setup_title), 30, Color.WHITE);
+        TextView title = text(getString(R.string.setup_title), 27, Color.WHITE);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         title.setGravity(Gravity.CENTER);
-        root.addView(title, margins(dp(720), -1, 0, dp(2), 0, 0));
+        root.addView(title, margins(dp(720), -2, 0, dp(2), 0, 0));
 
         TextView subtitle = text(getString(R.string.setup_subtitle), 15,
             Color.rgb(177, 187, 216));
         subtitle.setGravity(Gravity.CENTER);
-        root.addView(subtitle, margins(dp(720), -1, 0, 0, 0, dp(18)));
+        root.addView(subtitle, margins(dp(720), -2, 0, 0, 0, dp(10)));
 
         LinearLayout assets = new LinearLayout(this);
         assets.setOrientation(LinearLayout.HORIZONTAL);
         assets.setGravity(Gravity.CENTER);
-        root.addView(assets, margins(-1, -2, 0, 0, 0, dp(14)));
+        root.addView(assets, margins(-1, -2, 0, 0, 0, dp(8)));
 
         LinearLayout biosCard = assetCard("1", "GBA BIOS",
             "Choose your clean 16 KiB gba_bios.bin dump.");
         biosStatus = statusText();
         biosButton = actionButton("CHOOSE BIOS");
         biosButton.setOnClickListener(view -> pickFile(PICK_BIOS));
-        biosCard.addView(biosStatus, margins(-1, -2, 0, dp(8), 0, dp(8)));
-        biosCard.addView(biosButton, margins(-1, dp(48), 0, 0, 0, 0));
+        biosCard.addView(biosStatus, margins(-1, -2, 0, dp(4), 0, dp(4)));
+        biosCard.addView(biosButton, margins(-1, dp(44), 0, 0, 0, 0));
         assets.addView(biosCard, weightedMargins(1, dp(8), 0, dp(8), 0));
 
         LinearLayout romCard = assetCard("2", "WarioWare: Twisted! ROM",
@@ -168,34 +182,58 @@ public final class SetupActivity extends Activity {
         romStatus = statusText();
         romButton = actionButton("CHOOSE ROM");
         romButton.setOnClickListener(view -> pickFile(PICK_ROM));
-        romCard.addView(romStatus, margins(-1, -2, 0, dp(8), 0, dp(8)));
-        romCard.addView(romButton, margins(-1, dp(48), 0, 0, 0, 0));
+        romCard.addView(romStatus, margins(-1, -2, 0, dp(4), 0, dp(4)));
+        romCard.addView(romButton, margins(-1, dp(44), 0, 0, 0, 0));
         assets.addView(romCard, weightedMargins(1, dp(8), 0, dp(8), 0));
 
         motionStatus = text("", 13, Color.rgb(177, 187, 216));
         motionStatus.setGravity(Gravity.CENTER);
-        root.addView(motionStatus, margins(dp(720), -1, 0, 0, 0, dp(12)));
-
-        playButton = actionButton("PLAY");
-        playButton.setTextSize(18);
-        playButton.setTypeface(Typeface.DEFAULT_BOLD);
-        playButton.setOnClickListener(view -> launchGame());
-        root.addView(playButton, margins(dp(360), dp(58), 0, 0, 0, dp(14)));
+        root.addView(motionStatus, margins(dp(720), -2, 0, 0, 0, dp(6)));
 
         TextView privacy = text(
             "Your BIOS and ROM stay in this app’s private storage. " +
             "They are not included in the APK. Rotate the phone around its " +
             "screen-normal axis to play; touch and gamepads are also supported.",
-            12, Color.rgb(132, 143, 173));
+            11, Color.rgb(132, 143, 173));
         privacy.setGravity(Gravity.CENTER);
-        root.addView(privacy, margins(dp(760), -1, 0, 0, 0, 0));
-        return scroll;
+        root.addView(privacy, margins(dp(760), -2, 0, 0, 0, 0));
+
+        LinearLayout footer = new LinearLayout(this);
+        footer.setOrientation(LinearLayout.HORIZONTAL);
+        footer.setGravity(Gravity.CENTER_VERTICAL);
+        footer.setPadding(dp(36), dp(8), dp(36), dp(14));
+
+        skipLauncherCheck = new CheckBox(this);
+        skipLauncherCheck.setText("Skip launcher on boot when files are ready");
+        skipLauncherCheck.setTextColor(Color.rgb(203, 212, 238));
+        skipLauncherCheck.setTextSize(14);
+        skipLauncherCheck.setGravity(Gravity.CENTER_VERTICAL);
+        skipLauncherCheck.setMinHeight(dp(52));
+        skipLauncherCheck.setChecked(skipLauncherOnBoot());
+        skipLauncherCheck.setOnCheckedChangeListener((button, checked) ->
+            getSharedPreferences(SETUP_PREFERENCES, MODE_PRIVATE)
+                .edit()
+                .putBoolean(SKIP_LAUNCHER_ON_BOOT, checked)
+                .apply());
+        footer.addView(skipLauncherCheck,
+            weightedMargins(1, 0, 0, dp(18), 0));
+
+        playButton = actionButton("PLAY");
+        playButton.setTextSize(18);
+        playButton.setTypeface(Typeface.DEFAULT_BOLD);
+        playButton.setOnClickListener(view -> launchGame());
+        footer.addView(playButton, margins(dp(360), dp(58), 0, 0, 0, 0));
+
+        page.addView(footer, new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT));
+        return page;
     }
 
     private LinearLayout assetCard(String number, String title, String body) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(20), dp(15), dp(20), dp(17));
+        card.setPadding(dp(20), dp(12), dp(20), dp(12));
         card.setBackground(roundRect(Color.rgb(20, 25, 48), 18,
             Color.rgb(48, 58, 92)));
 
@@ -284,7 +322,17 @@ public final class SetupActivity extends Activity {
         if (!biosReady || !romReady) {
             return;
         }
+        getSharedPreferences(SETUP_PREFERENCES, MODE_PRIVATE)
+            .edit()
+            .putBoolean(SKIP_LAUNCHER_ON_BOOT,
+                skipLauncherCheck == null || skipLauncherCheck.isChecked())
+            .apply();
         startActivity(new Intent(this, WarioWareActivity.class));
+    }
+
+    private boolean skipLauncherOnBoot() {
+        return getSharedPreferences(SETUP_PREFERENCES, MODE_PRIVATE)
+            .getBoolean(SKIP_LAUNCHER_ON_BOOT, true);
     }
 
     private boolean hasBundledPrivateAssets() {
