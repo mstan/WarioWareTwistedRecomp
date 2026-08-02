@@ -1,149 +1,117 @@
-# WarioWareTwistedRecomp
+# WarioWare: Twisted! Recomp
 
-PC bring-up of **WarioWare: Twisted!** (Game Boy Advance, USA) on
-[`gbarecomp`](https://github.com/mstan/gbarecomp).
+> **Experimental preview.** This recompilation is a byproduct of developing
+> [gbarecomp](https://github.com/mstan/gbarecomp): the games are the proving
+> ground, while the reusable framework is the larger goal. This is not a
+> finished commercial port, so expect rough edges and please report problems.
+> For more context, read
+> [Recomp + AI: 5 Months Later »](https://1379.tech/recomp-ai-5-months-later/).
 
-The ROM identity gate, SRAM save, 16-shard generated translation, native runner,
-and cartridge gyro/rumble wire protocol are in place. SDL controller motion
-sensors (including the PlayStation 5 DualSense) drive the gyro on PC, horizontal
-mouse dragging remains a fallback, and headless tests can use a deterministic
-sensor sweep.
+Static recompilation of **WarioWare: Twisted!** for Windows and Android, with
+native motion controls for the cartridge's built-in gyroscope.
 
-Static cart recompilation is the default. Code copied to EWRAM/IWRAM at runtime
-uses gbarecomp's RAM dispatch/self-heal path. Set `GBARECOMP_FORCE_INTERP=1`
-only when the reference interpreter is useful for diagnostics.
+The game ROM and Nintendo GBA BIOS are **not included**. You must provide your
+own legally obtained dumps.
 
-## Pinned cartridge
+## Status
 
-| Field | Value |
+The game boots and runs on Windows and Android, including its menus,
+microgames, cartridge saves, and gyro-controlled stages. Android has been
+tested on a Galaxy S22 Ultra. The initial `v0.0.1` builds are experimental, so
+back up important saves and report repeatable crashes or motion-control
+problems.
+
+## Quick start
+
+### Android
+
+1. Download the experimental APK from
+   [Android Releases](../../releases/tag/android-v0.0.1) and install it.
+2. Open the app and select your **WarioWare: Twisted! (USA)** ROM and retail
+   GBA BIOS.
+3. Hold the phone in landscape, configure the launcher if desired, and select
+   **Play**.
+4. Twist the phone like the original cartridge to control gyro microgames.
+
+The Android launcher uses the system file picker and remembers valid files.
+Enable **Skip launcher on boot** to start the game directly on later launches.
+
+### Windows
+
+1. Download the Windows zip from
+   [Windows Releases](../../releases/tag/v0.0.1) and extract it.
+2. Run `WarioWareTwistedRecomp.exe`.
+3. Select your matching ROM and retail GBA BIOS, configure controls, and
+   select **Play**.
+
+On Windows, a compatible controller's motion sensor provides gyro input.
+Holding the left mouse button and dragging horizontally is the fallback.
+
+## Features
+
+- Native Windows x64 and Android arm64 builds
+- Phone gyro and supported controller-motion input
+- Mouse-drag gyro fallback on Windows
+- Touch-friendly Android launcher and in-game menu
+- ROM and BIOS setup through the shared
+  [recomp-ui](https://github.com/mstan/recomp-ui) launcher
+- Keyboard, controller, and touchscreen controls
+- Windowed and fullscreen desktop play
+- Cartridge saves and save states
+
+## Controls
+
+| GBA control | Keyboard |
 |---|---|
-| Header title | `WARIOTWISTED` |
-| Game code | `RZWE` |
-| Region / revision | USA / 0 |
-| Size | 16 MiB |
-| SHA-1 | `f0102d0d6f7596fe853d5d0a94682718278e083a` |
-| MD5 | `89579f4dfe1ed24a7cd16a6a61a72a17` |
-| Save signature | `SRAM_V113` (32 KiB) |
+| D-Pad | Arrow keys |
+| A / B | X / Z |
+| Start | Enter |
+| Select | Right Shift |
+| L / R | C / V |
 
-The ROM and GBA BIOS are user-provided, gitignored assets and must never be
-committed.
+Controllers are detected automatically. Gyro sensitivity and button mappings
+can be changed from the launcher. On Android, use the on-screen controls and
+the phone's motion sensor.
 
-## Local layout
+## Building from source
 
-- Engine: `gbarecomp/` (git submodule)
-- Launcher: `recomp-ui/` (git submodule)
-- Game ROM: `variants/warioware_twisted/roms/warioware_twisted_usa.gba`
-- Game config: `variants/warioware_twisted/game.toml`
-- Generated translation: `variants/warioware_twisted/generated/`
-
-## Build
-
-From PowerShell with CMake, Ninja, MinGW-w64, and SDL2 available:
+Windows development requires CMake, Ninja, MSYS2 MinGW64, and SDL2:
 
 ```powershell
-git submodule update --init --recursive
+git clone --recurse-submodules `
+  https://github.com/mstan/WarioWareTwistedRecomp.git
+cd WarioWareTwistedRecomp
 
-& C:\msys64\mingw64\bin\cmake.exe `
-    -S .\gbarecomp `
-    -B .\gbarecomp\build-native -G Ninja
-& C:\msys64\mingw64\bin\cmake.exe `
-    --build .\gbarecomp\build-native `
-    --target gba_recompile
-
-.\tools\regen.ps1
-
-& C:\msys64\mingw64\bin\cmake.exe -S . -B build -G Ninja `
-    -DCMAKE_BUILD_TYPE=Release
-& C:\msys64\mingw64\bin\cmake.exe `
-    --build build --target WarioWareTwistedRecomp --parallel 2
+cmake -S gbarecomp -B gbarecomp/build-native -G Ninja
+cmake --build gbarecomp/build-native --target gba_recompile
+pwsh tools/regen.ps1
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target WarioWareTwistedRecomp
 ```
 
-To make the Windows release zip (desktop only):
+Android build and device-validation instructions live in
+[`android/README.md`](android/README.md).
 
-```powershell
-.\tools\make_release.ps1 -Version 0.0.1
-```
+Generation requires the supported ROM revision and a retail GBA BIOS. Their
+identities and local development paths are documented in
+[`variants/warioware_twisted/game.toml`](variants/warioware_twisted/game.toml).
+ROM-derived generated code, copyrighted inputs, saves, caches, and build output
+remain local and are never included in public releases.
 
-The release packager rejects ROM, BIOS, save, and APK files before creating
-the archive. It stages only the compiled DLL portion of the validated warm
-overlay cache under both supported compiler backends; ROM-derived cache source
-and logs are excluded. Android is distributed as a separate experimental APK
-and is not part of desktop releases.
+Contributors can run `pwsh tools/verify-attract.ps1` for the automated desktop
+acceptance route and `pwsh tools/make_release.ps1 -Version 0.0.1` to build a
+sanitized Windows package.
 
-Run from the project root so the relative config and asset paths resolve:
+## Legal
 
-```powershell
-.\build\WarioWareTwistedRecomp.exe `
-    variants\warioware_twisted\game.toml
-```
+This is an unofficial, non-commercial preservation and research project. It
+is not affiliated with or endorsed by Nintendo. WarioWare and related names,
+characters, artwork, and game data are trademarks or copyrights of their
+respective owners.
 
-Windowed runs open the shared `recomp-ui` pre-boot launcher. Use
-`--no-launcher` to skip it once or `--launcher` to override a persisted
-skip-launcher preference.
+No copyrighted game ROM or Nintendo BIOS data is distributed by this project.
 
-Controls:
+---
 
-- Keyboard D-pad: arrow keys
-- Keyboard A / B: `X` / `Z`
-- Keyboard Start / Select: Enter / Right Shift
-- Controller: D-pad, south/east face buttons, Options/Create, and L1/R1
-- Controller gyro: twist the controller like a steering wheel. A supported
-  sensor is detected and enabled automatically.
-- Mouse gyro fallback: hold the left button and drag horizontally.
-
-The launcher's `CONTROLLER -> Configure -> MOTION` card controls gyro
-sensitivity from `0.25x` to `4.00x` and persists it beside the executable.
-The equivalent command-line option is `--gyro-sensitivity <value>`. On Android,
-the displayed 1.00x setting uses WarioWare's device-calibrated 0.75x response.
-
-For a reproducible headless gyro run:
-
-```powershell
-$env:GBARECOMP_GYRO_TEST = "sweep"
-.\build\WarioWareTwistedRecomp.exe `
-    variants\warioware_twisted\game.toml `
-    --no-window --frames 60
-```
-
-`GBARECOMP_GYRO_TEST` also accepts a numeric signed sensor offset. The
-cartridge rumble output line is modeled and covered by a unit test, but it is
-not connected to host vibration yet. Android uses the device motion sensor for
-cartridge gyro input; the provider boundary is described in
-[`docs/gyro-plan.md`](docs/gyro-plan.md).
-
-## Attract-mode verification
-
-The deterministic acceptance route dismisses the health-and-safety screen at
-frame 300, skips the opening story at frame 620, keeps the gyro centered through
-the cartridge's calibration screen, reaches the title by frame 1,200, then
-leaves input neutral. The title times out into its animated attract loop by
-frame 3,000.
-
-```powershell
-.\tools\verify-attract.ps1
-```
-
-The script requires the native executable to be built. It runs with an isolated
-temporary SRAM file and the normal development self-heal cache, requires zero
-unmapped and unhandled I/O accesses, checks the final PPU frame count, and
-verifies the rendered attract framebuffer hash. Static recompilation is
-verified by default; pass `-Interpreter` to compare the reference backend.
-Pass `-ColdCache` to audit first-run static coverage with a new cache. Artifacts
-are written under `build/attract-verify/`.
-
-A completely cold self-heal cache currently reaches an unresolved static
-coverage bridge around ROM addresses `0x080013EC`/`0x080013F8` during startup.
-The normal development-cache static route and the reference interpreter both
-reach attract mode; closing this cold-cache gap is the next engine task.
-
-## Current validation
-
-- ROM generation: 2,839 functions (4 ARM, 2,835 Thumb), 16 shards
-- Native MinGW/SDL executable builds successfully
-- ARM interpreter and cartridge GPIO tests pass
-- 60-frame real-BIOS and HLE-BIOS headless runs complete with no unmapped or
-  unhandled I/O accesses
-- A rendered frame reaches the WarioWare health-and-safety screen
-- Static recompilation reaches the title at frame 1,200 and the animated
-  no-input attract loop at frame 3,000 with a framebuffer matching the
-  reference interpreter
+Part of the **R.A.I.D. — Retro AI Development** static-recompilation
+community.
