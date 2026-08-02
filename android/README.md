@@ -1,10 +1,12 @@
-# Android prototype
+# Android experimental release
 
-This target is an unreleased experiment. It is not a production packaging
-path and must not be published.
+This target is an experimental, initial Android port. Version 0.0.1 supports
+64-bit ARM devices running Android 9 or newer and is distributed as a
+debug-signed APK for sideload testing.
 
 Normal builds use a first-launch document picker, verify user-supplied assets,
-and store them in the app's private directory. APK files are ignored by Git.
+and store them in the app's private directory. The public APK contains neither
+file. APK files are ignored by Git.
 
 For a private sideload build, Gradle can embed local verified assets without
 copying them into the source tree:
@@ -24,4 +26,5 @@ not be published or attached to a public release.
 - A connected controller, including DualSense motion, remains supported.
 - Touch controls provide the GBA D-pad, A, B, L, R, Start, and Select.
 - Long-press an unused part of the game screen for 650 ms to open settings.
-- Gyro sensitivity defaults to 0.25x and can be adjusted in Motion settings.
+- Gyro sensitivity defaults to the calibrated 1.00x baseline and can be
+  adjusted in Motion settings.

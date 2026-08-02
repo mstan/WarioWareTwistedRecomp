@@ -67,8 +67,8 @@ To make the Windows release zip (desktop only):
 The release packager rejects ROM, BIOS, save, and APK files before creating
 the archive. It stages only the compiled DLL portion of the validated warm
 overlay cache under both supported compiler backends; ROM-derived cache source
-and logs are excluded. The experimental Android project is not part of desktop
-releases.
+and logs are excluded. Android is distributed as a separate experimental APK
+and is not part of desktop releases.
 
 Run from the project root so the relative config and asset paths resolve:
 
@@ -93,7 +93,8 @@ Controls:
 
 The launcher's `CONTROLLER -> Configure -> MOTION` card controls gyro
 sensitivity from `0.25x` to `4.00x` and persists it beside the executable.
-The equivalent command-line option is `--gyro-sensitivity <value>`.
+The equivalent command-line option is `--gyro-sensitivity <value>`. On Android,
+the displayed 1.00x setting uses WarioWare's device-calibrated 0.75x response.
 
 For a reproducible headless gyro run:
 
@@ -106,8 +107,8 @@ $env:GBARECOMP_GYRO_TEST = "sweep"
 
 `GBARECOMP_GYRO_TEST` also accepts a numeric signed sensor offset. The
 cartridge rumble output line is modeled and covered by a unit test, but it is
-not connected to host vibration yet. Android sensor and haptics work remains
-future work; the provider boundary is described in
+not connected to host vibration yet. Android uses the device motion sensor for
+cartridge gyro input; the provider boundary is described in
 [`docs/gyro-plan.md`](docs/gyro-plan.md).
 
 ## Attract-mode verification

@@ -3,7 +3,7 @@
 	url = https://github.com/mstan/recomp-ui.git
 [submodule "android/third_party/SDL"]
 	path = android/third_party/SDL
-	url = https://github.com/libsdl-org/SDL.git
+	url = https://github.com/mstan/SDL.git
 [submodule "gbarecomp"]
 	path = gbarecomp
 	url = https://github.com/mstan/gbarecomp.git
