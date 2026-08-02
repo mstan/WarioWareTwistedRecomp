@@ -114,6 +114,10 @@ int warioware_main(int argc, char** argv) {
     opts.launcher_expose_gyro = true;
 #if defined(__ANDROID__)
     opts.ui_touch_friendly = true;
+    // The S22's physical sensor felt best at the former 0.75x setting. Treat
+    // that response as WarioWare Android's authored 1.00x baseline so the
+    // player-facing slider remains an intuitive relative multiplier.
+    opts.gyro_sensitivity_calibration = 0.75f;
 #endif
 
 #if defined(GBAGAME_RECOMP_UI)
