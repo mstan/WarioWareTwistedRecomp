@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "runtime.h"
-#include "runtime_arm.h"
 
 #if defined(__ANDROID__)
 #include <SDL_system.h>
@@ -33,15 +32,6 @@
 #endif
 
 namespace {
-
-#if defined(__ANDROID__)
-int interpret_mutable_ram(uint32_t pc, int /*thumb*/) {
-    // WarioWare copies callback and IRQ code into EWRAM/IWRAM at runtime.
-    // Cartridge code remains statically recompiled, while mutable RAM must be
-    // interpreted because Android cannot use the desktop overlay compiler.
-    return pc >= 0x02000000u && pc < 0x04000000u;
-}
-#endif
 
 void set_environment_default(const char* name, const char* value) {
     if (std::getenv(name) != nullptr) return;
@@ -82,6 +72,12 @@ int warioware_main(int argc, char** argv) {
     std::setvbuf(stderr, nullptr, _IONBF, 0);
     std::setvbuf(stdout, nullptr, _IONBF, 0);
     set_environment_default("GBARECOMP_SELFHEAL_RECOMPILE", "0");
+    // Android cannot use the desktop overlay compiler, and physical devices
+    // reach timing-dependent indirect blocks that are not present in a cold
+    // static corpus. Use the engine's validated interpreter CPU backend while
+    // retaining native PPU/audio/input/gyro host services.
+    setenv("GBARECOMP_FORCE_INTERP", "1", 1);
+    std::fprintf(stderr, "android: CPU backend=interpreter (device-safe)\n");
 #endif
     for (int i = 1; i < argc; ++i) {
         if (std::strcmp(argv[i], "--help") == 0 ||
@@ -128,7 +124,6 @@ int warioware_main(int argc, char** argv) {
     args.emplace_back("--no-launcher");
     args.emplace_back("--gyro-sensitivity");
     args.emplace_back("1.0");
-    g_runtime_force_interp_hook = interpret_mutable_ram;
 #endif
     if (game_launcher_preboot(args, opts)) return 0;
     std::vector<char*> av;
