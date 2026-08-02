@@ -112,6 +112,9 @@ int warioware_main(int argc, char** argv) {
     opts.launcher_save_path =
         "saves/warioware_twisted_usa.sav";
     opts.launcher_expose_gyro = true;
+#if defined(__ANDROID__)
+    opts.ui_touch_friendly = true;
+#endif
 
 #if defined(GBAGAME_RECOMP_UI)
     std::vector<std::string> args(argv, argv + argc);
