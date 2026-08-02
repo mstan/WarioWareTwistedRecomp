@@ -271,11 +271,12 @@ public final class SetupActivity extends Activity {
     private void pickFile(int requestCode) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/octet-stream");
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {
-            "application/octet-stream", "application/x-gba-rom",
-            "application/vnd.nintendo.snes.rom", "*/*"
-        });
+        // Android's DocumentsUI frequently assigns .bin and .gba files an
+        // unknown or vendor-specific MIME type. Filtering for octet-stream
+        // therefore makes valid dumps disappear on some providers. Show every
+        // openable file here and let the strict size + SHA-1 check below decide
+        // whether the selected document is the required BIOS or ROM.
+        intent.setType("*/*");
         startActivityForResult(intent, requestCode);
     }
 
