@@ -3,9 +3,20 @@
 This target is an unreleased experiment. It is not a production packaging
 path and must not be published.
 
-The initial ROM/BIOS bundling task was deliberately removed. A future Android
-release must use a first-launch document picker, verify user-supplied assets,
+Normal builds use a first-launch document picker, verify user-supplied assets,
 and store them in the app's private directory. APK files are ignored by Git.
+
+For a private sideload build, Gradle can embed local verified assets without
+copying them into the source tree:
+
+```powershell
+.\gradlew.bat :app:assembleDebug `
+  -PprivateBios=F:\path\to\gba_bios.bin `
+  -PprivateRom=F:\path\to\warioware_twisted_usa.gba
+```
+
+Both properties are required together. The resulting APK is private and must
+not be published or attached to a public release.
 
 ## Controls
 

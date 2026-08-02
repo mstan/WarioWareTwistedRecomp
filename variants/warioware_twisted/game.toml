@@ -59,3 +59,202 @@ addr = 0x0812ED40
 mode = "thumb"
 name = "m4aSoundVSync"
 note = "IRQ callback reloads DMA1/DMA2 when the PCM buffer period expires"
+
+# Reached through an indirect callback during early UI initialization. The
+# ordinary call graph discovers the containing function but not this internal
+# Thumb entry, which is required by cold-cache/mobile builds without overlays.
+[[extra_func]]
+addr = 0x08008E3C
+mode = "thumb"
+resume = true
+name = "earlyUiIndirectCallback"
+note = "indirect internal Thumb entry observed during cold Android startup"
+
+[[extra_func]]
+addr = 0x08008F1C
+mode = "thumb"
+resume = true
+name = "earlyUiResume1"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x08131EF4
+mode = "arm"
+resume = true
+name = "irqDispatchResume"
+note = "cold Android IRQ dispatch resume entry"
+
+[[extra_func]]
+addr = 0x08008F96
+mode = "thumb"
+resume = true
+name = "earlyUiResume2"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x0801A130
+mode = "thumb"
+resume = true
+name = "callbackDispatchResume"
+note = "indirect callback resume entry"
+
+[[extra_func]]
+addr = 0x08011F7C
+mode = "thumb"
+resume = true
+name = "copiedCodeSetupResume1"
+note = "copied-code setup resume entry"
+
+[[extra_func]]
+addr = 0x08011F82
+mode = "thumb"
+resume = true
+name = "copiedCodeSetupResume2"
+note = "copied-code setup resume entry"
+
+[[extra_func]]
+addr = 0x080081F4
+mode = "thumb"
+resume = true
+name = "startupResume1"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x0801A208
+mode = "thumb"
+resume = true
+name = "startupResume2"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x08008210
+mode = "thumb"
+resume = true
+name = "startupResume3"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x0801A15C
+mode = "thumb"
+resume = true
+name = "startupResume4"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x08002D04
+mode = "thumb"
+resume = true
+name = "startupResume5"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x0801A058
+mode = "thumb"
+resume = true
+name = "startupResume6"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x08008420
+mode = "thumb"
+resume = true
+name = "startupResume7"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x080012E6
+mode = "thumb"
+resume = true
+name = "startupResume8"
+note = "cold Android startup resume entry"
+
+[[extra_func]]
+addr = 0x0801A084
+mode = "thumb"
+resume = true
+name = "storyResume1"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x08008404
+mode = "thumb"
+resume = true
+name = "storyResume2"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x0801A228
+mode = "thumb"
+resume = true
+name = "storyResume3"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x080185C4
+mode = "thumb"
+resume = true
+name = "storyResume4"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x080186B0
+mode = "thumb"
+resume = true
+name = "storyResume5"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x0800B4CC
+mode = "thumb"
+resume = true
+name = "storyResume6"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x08002CE8
+mode = "thumb"
+resume = true
+name = "storyResume7"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x08018674
+mode = "thumb"
+resume = true
+name = "storyResume8"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x0801A24C
+mode = "thumb"
+resume = true
+name = "storyResume9"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x08018748
+mode = "thumb"
+resume = true
+name = "storyResume10"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x0800797C
+mode = "thumb"
+resume = true
+name = "storyResume11"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x08007CA4
+mode = "thumb"
+resume = true
+name = "storyResume12"
+note = "cold Android story resume entry"
+
+[[extra_func]]
+addr = 0x08007D28
+mode = "thumb"
+resume = true
+name = "storyResume13"
+note = "cold Android story resume entry"

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "runtime.h"
+#include "runtime_arm.h"
 
 #if defined(__ANDROID__)
 #include <SDL_system.h>
@@ -32,6 +33,15 @@
 #endif
 
 namespace {
+
+#if defined(__ANDROID__)
+int interpret_mutable_ram(uint32_t pc, int /*thumb*/) {
+    // WarioWare copies callback and IRQ code into EWRAM/IWRAM at runtime.
+    // Cartridge code remains statically recompiled, while mutable RAM must be
+    // interpreted because Android cannot use the desktop overlay compiler.
+    return pc >= 0x02000000u && pc < 0x04000000u;
+}
+#endif
 
 void set_environment_default(const char* name, const char* value) {
     if (std::getenv(name) != nullptr) return;
@@ -64,6 +74,13 @@ int warioware_main(int argc, char** argv) {
     // use the same relative layout without Android-only path plumbing.
     if (const char* storage = SDL_AndroidGetInternalStoragePath())
         chdir(storage);
+    // Android does not reliably surface native stdout/stderr in logcat. Keep a
+    // small launch log beside the private payload so setup and boot failures
+    // remain diagnosable with `adb shell run-as`.
+    std::freopen("android-runtime.log", "w", stderr);
+    std::freopen("android-runtime.log", "a", stdout);
+    std::setvbuf(stderr, nullptr, _IONBF, 0);
+    std::setvbuf(stdout, nullptr, _IONBF, 0);
     set_environment_default("GBARECOMP_SELFHEAL_RECOMPILE", "0");
 #endif
     for (int i = 1; i < argc; ++i) {
@@ -104,6 +121,14 @@ int warioware_main(int argc, char** argv) {
     std::vector<std::string> args(argv, argv + argc);
 #if defined(__ANDROID__)
     if (!args.empty()) args[0] = "./WarioWareTwistedRecomp";
+    // SDLActivity supplies no command-line arguments. Point the runtime at the
+    // staged per-game TOML explicitly so it can resolve the private BIOS, ROM,
+    // and save paths relative to that file.
+    args.emplace_back(GBARECOMP_DEFAULT_GAME_CONFIG);
+    args.emplace_back("--no-launcher");
+    args.emplace_back("--gyro-sensitivity");
+    args.emplace_back("1.0");
+    g_runtime_force_interp_hook = interpret_mutable_ram;
 #endif
     if (game_launcher_preboot(args, opts)) return 0;
     std::vector<char*> av;

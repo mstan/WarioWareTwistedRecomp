@@ -3,8 +3,16 @@ plugins {
 }
 
 def gameRoot = rootDir.parentFile
-def engineRoot = new File(gameRoot.parentFile, "gbarecomp-warioware-twisted")
+def engineRoot = new File(gameRoot, "gbarecomp")
 def sdlRoot = new File(gameRoot, "android/third_party/SDL")
+def stagedPayload = layout.buildDirectory.dir("generated/wariowarePayload")
+def privateBiosPath = providers.gradleProperty("privateBios").orNull
+def privateRomPath = providers.gradleProperty("privateRom").orNull
+
+if ((privateBiosPath == null) != (privateRomPath == null)) {
+    throw new GradleException(
+        "Private builds require both -PprivateBios=<path> and -PprivateRom=<path>")
+}
 
 android {
     namespace "com.mstan.wariowaretwisted"
@@ -13,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId "com.mstan.wariowaretwisted"
-        minSdk 23
+        minSdk 28
         targetSdk 35
         versionCode 1
         versionName "0.1.0"
@@ -22,7 +30,8 @@ android {
             cmake {
                 arguments "-DANDROID_STL=c++_shared",
                           "-DGBARECOMP_ROOT=${engineRoot.absolutePath.replace('\\', '/')}",
-                          "-DGBAGAME_RECOMP_UI=ON"
+                          "-DGBAGAME_RECOMP_UI=ON",
+                          "-DCMAKE_BUILD_TYPE=Release"
                 cppFlags "-O2"
                 abiFilters "arm64-v8a"
                 targets "main"
@@ -50,6 +59,7 @@ android {
         main {
             java.srcDir new File(sdlRoot,
                 "android-project/app/src/main/java")
+            assets.srcDir stagedPayload
         }
     }
 
@@ -58,4 +68,46 @@ android {
             useLegacyPackaging = true
         }
     }
+}
+
+// Sync (rather than Copy) guarantees a normal distributable build cannot
+// inherit private BIOS/ROM files from an earlier private build.
+tasks.register("stageAndroidPayload", Sync) {
+    inputs.property("privatePayloadEnabled", privateBiosPath != null)
+    if (privateBiosPath != null) {
+        inputs.file(file(privateBiosPath))
+        inputs.file(file(privateRomPath))
+    }
+    from(new File(rootDir, "game_android.toml")) {
+        into("payload/variants/warioware_twisted")
+        rename { "game.toml" }
+    }
+    if (privateBiosPath != null) {
+        def privateBiosFile = file(privateBiosPath)
+        def privateRomFile = file(privateRomPath)
+        from(privateBiosFile) {
+            into("payload/bios")
+            rename { "gba_bios.bin" }
+        }
+        from(privateRomFile) {
+            into("payload/roms")
+            rename { "warioware_twisted_usa.gba" }
+        }
+        doFirst {
+            if (!privateBiosFile.isFile() || privateBiosFile.length() != 16384) {
+                throw new GradleException(
+                    "Private BIOS must be the 16 KiB gba_bios.bin dump")
+            }
+            if (!privateRomFile.isFile() ||
+                    privateRomFile.length() != 16 * 1024 * 1024) {
+                throw new GradleException(
+                    "Private ROM must be the 16 MiB WarioWare: Twisted! USA dump")
+            }
+        }
+    }
+    into(stagedPayload)
+}
+
+tasks.named("preBuild").configure {
+    dependsOn("stageAndroidPayload")
 }

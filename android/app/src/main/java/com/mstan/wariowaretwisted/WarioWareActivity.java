@@ -18,11 +18,11 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public final class WarioWareActivity extends SDLActivity {
-    private static final String PAYLOAD_VERSION = "1";
+    private static final String PAYLOAD_VERSION = "3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         try {
             installPayload();
         } catch (IOException error) {
