@@ -112,12 +112,12 @@ int warioware_main(int argc, char** argv) {
     opts.launcher_save_path =
         "saves/warioware_twisted_usa.sav";
     opts.launcher_expose_gyro = true;
+    // The validated controller/phone response felt best at the former 0.75x
+    // setting. Treat that response as WarioWare's authored 1.00x baseline on
+    // every platform so the player-facing slider is a relative multiplier.
+    opts.gyro_sensitivity_calibration = 0.75f;
 #if defined(__ANDROID__)
     opts.ui_touch_friendly = true;
-    // The S22's physical sensor felt best at the former 0.75x setting. Treat
-    // that response as WarioWare Android's authored 1.00x baseline so the
-    // player-facing slider remains an intuitive relative multiplier.
-    opts.gyro_sensitivity_calibration = 0.75f;
 #endif
 
 #if defined(GBAGAME_RECOMP_UI)
