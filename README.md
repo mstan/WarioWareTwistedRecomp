@@ -102,6 +102,11 @@ Contributors can run `pwsh tools/verify-attract.ps1` for the automated desktop
 acceptance route and `pwsh tools/make_release.ps1 -Version 0.0.1` to build a
 sanitized Windows package.
 
+## License
+
+PolyForm Noncommercial 1.0.0 — see [`LICENSE`](LICENSE). Third-party
+components retain their own licenses.
+
 ## Legal
 
 This is an unofficial, non-commercial preservation and research project. It
