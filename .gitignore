@@ -57,3 +57,8 @@ keybinds.ini
 __pycache__/
 .DS_Store
 Thumbs.db
+
+# Android signing material stays local (see F:\Projects\Android\README.md).
+signing.local.properties
+*.jks
+*.keystore
