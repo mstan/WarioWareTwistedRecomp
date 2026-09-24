@@ -4,12 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "mobile_platform.h"
 #include "runtime.h"
-
-#if defined(__ANDROID__)
-#include <SDL_system.h>
-#include <unistd.h>
-#endif
 
 #if defined(GBAGAME_RECOMP_UI)
 #include "game_launcher_boot.h"
@@ -58,27 +54,23 @@ void print_usage() {
 }  // namespace
 
 int warioware_main(int argc, char** argv) {
+    std::vector<std::string> args(argv, argv + argc);
+    // Android: private-storage layout, log file, staged game TOML and no
+    // pre-boot launcher (shared gbarecomp mobile setup). No-op on desktop.
+    gbarecomp::MobileProcessOptions mobile;
+    mobile.game_config = GBARECOMP_DEFAULT_GAME_CONFIG;
+    mobile.program_name = "./WarioWareTwistedRecomp";
+    if (gbarecomp::mobile_prepare_process(args, mobile)) {
+        // Android v0.0.1 validated this title on the interpreter CPU backend
+        // (the static corpus hit timing-dependent indirect blocks on devices).
+        // Keep it until the static corpus is re-validated on the S22 now that
+        // the game thread has a desktop-sized stack.
 #if defined(__ANDROID__)
-    // SDLActivity installs assets in the app's private files directory. Make
-    // that the process root so the existing desktop config/launcher seam can
-    // use the same relative layout without Android-only path plumbing.
-    if (const char* storage = SDL_AndroidGetInternalStoragePath())
-        chdir(storage);
-    // Android does not reliably surface native stdout/stderr in logcat. Keep a
-    // small launch log beside the private payload so setup and boot failures
-    // remain diagnosable with `adb shell run-as`.
-    std::freopen("android-runtime.log", "w", stderr);
-    std::freopen("android-runtime.log", "a", stdout);
-    std::setvbuf(stderr, nullptr, _IONBF, 0);
-    std::setvbuf(stdout, nullptr, _IONBF, 0);
-    set_environment_default("GBARECOMP_SELFHEAL_RECOMPILE", "0");
-    // Android cannot use the desktop overlay compiler, and physical devices
-    // reach timing-dependent indirect blocks that are not present in a cold
-    // static corpus. Use the engine's validated interpreter CPU backend while
-    // retaining native PPU/audio/input/gyro host services.
-    setenv("GBARECOMP_FORCE_INTERP", "1", 1);
-    std::fprintf(stderr, "android: CPU backend=interpreter (device-safe)\n");
+        setenv("GBARECOMP_FORCE_INTERP", "1", 1);
 #endif
+        args.emplace_back("--gyro-sensitivity");
+        args.emplace_back("1.0");
+    }
     for (int i = 1; i < argc; ++i) {
         if (std::strcmp(argv[i], "--help") == 0 ||
             std::strcmp(argv[i], "-h") == 0) {
@@ -121,30 +113,18 @@ int warioware_main(int argc, char** argv) {
 #endif
 
 #if defined(GBAGAME_RECOMP_UI)
-    std::vector<std::string> args(argv, argv + argc);
-#if defined(__ANDROID__)
-    if (!args.empty()) args[0] = "./WarioWareTwistedRecomp";
-    // SDLActivity supplies no command-line arguments. Point the runtime at the
-    // staged per-game TOML explicitly so it can resolve the private BIOS, ROM,
-    // and save paths relative to that file.
-    args.emplace_back(GBARECOMP_DEFAULT_GAME_CONFIG);
-    args.emplace_back("--no-launcher");
-    args.emplace_back("--gyro-sensitivity");
-    args.emplace_back("1.0");
-#endif
     if (game_launcher_preboot(args, opts)) return 0;
+#endif
     std::vector<char*> av;
     av.reserve(args.size());
     for (auto& arg : args) av.push_back(arg.data());
     return gbarecomp::run_game(static_cast<int>(av.size()), av.data(), opts);
-#else
-    return gbarecomp::run_game(argc, argv, opts);
-#endif
 }
 
 #if defined(__ANDROID__)
 extern "C" int SDL_main(int argc, char** argv) {
-    return warioware_main(argc, argv);
+    // Desktop-sized host stack for recompiled code (see mobile_platform.h).
+    return gbarecomp::mobile_run_with_stack(warioware_main, argc, argv);
 }
 #else
 int main(int argc, char** argv) {

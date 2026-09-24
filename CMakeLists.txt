@@ -20,7 +20,9 @@ endif()
 
 # Share recomp-ui's in-game model with the platform runtime, matching the
 # Minish Cap integration. The pre-boot launcher itself is linked below.
-set(GBARECOMP_RUNTIME_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui"
+set(RECOMP_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui"
+    CACHE PATH "Path to the shared recomp-ui checkout")
+set(GBARECOMP_RUNTIME_UI_ROOT "${RECOMP_UI_ROOT}"
     CACHE PATH "recomp-ui root used by the live GBA runtime adapter")
 
 add_subdirectory("${GBARECOMP_ROOT}" gbarecomp_build EXCLUDE_FROM_ALL)
@@ -106,7 +108,7 @@ add_gba_variant(
 # define isolated from the generated guest shards.
 option(GBAGAME_RECOMP_UI "Build the recomp-ui pre-boot launcher" ON)
 if(GBAGAME_RECOMP_UI)
-    include(${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui/recomp_ui.cmake)
+    include(${RECOMP_UI_ROOT}/recomp_ui.cmake)
     add_library(game_launcher_ui STATIC src/game_launcher_boot.cpp)
     set_target_properties(game_launcher_ui PROPERTIES
         POSITION_INDEPENDENT_CODE ON)

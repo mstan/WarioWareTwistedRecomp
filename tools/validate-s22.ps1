@@ -1,7 +1,7 @@
 param(
     [string]$Apk = (
         Join-Path $PSScriptRoot `
-            "..\android\artifacts\WarioWareTwisted-Android-private-S22-fix-arm64-debug.apk"
+            "..\android\app\build\outputs\apk\debug\app-debug.apk"
     ),
     [string]$OutputDirectory = (
         Join-Path $PSScriptRoot "..\android\artifacts\s22-device-validation"
@@ -74,23 +74,26 @@ if ($LASTEXITCODE -ne 0) { throw "adb install failed with exit code $LASTEXITCOD
 
 & $adb -s $serial shell am force-stop com.mstan.wariowaretwisted
 & $adb -s $serial logcat -c
-& $adb -s $serial shell monkey `
-    -p com.mstan.wariowaretwisted `
-    -c android.intent.category.LAUNCHER 1 | Out-Host
+# The shared gbarecomp setup screen (org.gbarecomp.GbaSetupActivity) starts the
+# game once the ROM/BIOS are verified when given the AUTOSTART extra; the
+# player's "skip this screen" preference is left untouched.
+& $adb -s $serial shell am start `
+    -n com.mstan.wariowaretwisted/org.gbarecomp.GbaSetupActivity `
+    --ez org.gbarecomp.extra.AUTOSTART true | Out-Host
 if ($LASTEXITCODE -ne 0) { throw "Unable to launch WarioWare Twisted" }
 
 Start-Sleep -Seconds $BootWaitSeconds
 
-$sizeText = (& $adb -s $serial shell wm size) -join "`n"
-$sizes = [regex]::Matches($sizeText, "(\d+)x(\d+)")
-if ($sizes.Count -eq 0) { throw "Unable to determine the phone display size" }
-$activeSize = $sizes[$sizes.Count - 1]
-$naturalWidth = [int]$activeSize.Groups[1].Value
-$naturalHeight = [int]$activeSize.Groups[2].Value
-$landscapeWidth = [Math]::Max($naturalWidth, $naturalHeight)
-$landscapeHeight = [Math]::Min($naturalWidth, $naturalHeight)
-$aX = [int][Math]::Round($landscapeWidth * 0.90)
-$aY = [int][Math]::Round($landscapeHeight * 0.62)
+# The runtime logs the live virtual-pad geometry (drawable pixels) whenever
+# the presentation changes; press A at its logged centre.
+$bootLog = (& $adb -s $serial shell run-as com.mstan.wariowaretwisted `
+    cat files/android-runtime.log) -join "`n"
+$padLines = [regex]::Matches($bootLog, "host_window: pad .*\sa=(?<x>\d+),(?<y>\d+)\s")
+if ($padLines.Count -eq 0) {
+    throw "The runtime log has no virtual-pad layout line (game not running?)"
+}
+$aX = [int]$padLines[$padLines.Count - 1].Groups["x"].Value
+$aY = [int]$padLines[$padLines.Count - 1].Groups["y"].Value
 
 # Hold the on-screen A button long enough to be sampled even on a cold launch.
 & $adb -s $serial shell input swipe $aX $aY $aX $aY 2500
@@ -109,7 +112,7 @@ $remoteScreenshot = "/sdcard/warioware-s22-validation.png"
 
 $processId = (& $adb -s $serial shell pidof com.mstan.wariowaretwisted).Trim()
 $activity = (& $adb -s $serial shell dumpsys activity activities) |
-    Select-String -Pattern "topResumedActivity=.*com\.mstan\.wariowaretwisted" |
+    Select-String -Pattern "topResumedActivity=.*com\.mstan\.wariowaretwisted/org\.gbarecomp\.GbaGameActivity" |
     Select-Object -First 1
 $runtimeText = Get-Content -LiteralPath $runtimeLogPath -Raw
 $crashText = Get-Content -LiteralPath $crashLogPath -Raw
@@ -119,10 +122,10 @@ if (-not $processId) {
     $failures.Add("the application process is not running")
 }
 if (-not $activity) {
-    $failures.Add("WarioWareActivity is not the resumed foreground activity")
+    $failures.Add("GbaGameActivity is not the resumed foreground activity")
 }
-if ($runtimeText -notmatch "android: CPU backend=interpreter \(device-safe\)") {
-    $failures.Add("the device-safe Android CPU backend was not confirmed")
+if ($runtimeText -notmatch "cpu_backend=interpreter") {
+    $failures.Add("the device-validated interpreter CPU backend was not confirmed")
 }
 if ($runtimeText -match "SELF-HEAL|missing static coverage") {
     $failures.Add("the runtime reported an unexpected static-dispatch miss")
