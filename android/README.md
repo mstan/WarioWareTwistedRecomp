@@ -2,6 +2,10 @@
 
 This target is an experimental Android port for 64-bit ARM devices running
 Android 9 or newer, distributed as a debug-signed APK for sideload testing.
+Version 0.0.4 uses native execution by default, including the expanded Spindex
+microgame corpus and ROM-backed routines copied into RAM. Uncovered paths
+still report interpreter fallback; the recorded coverage applies to tested
+routes, not every possible game variation.
 
 The Android shell (SDL2, `org.gbarecomp` setup and game activities, manifest,
 native CMake root, payload staging) is shared by every gbarecomp game and lives
@@ -18,6 +22,11 @@ and validate with the engine scripts:
 
 See `gbarecomp/platform/android/tools/README.md` for all options (ABIs,
 engine/recomp-ui worktree roots, AVD bootstrap).
+
+The device validation scripts use a debuggable QA APK so `adb run-as` can read
+diagnostics. `tools/validate-s22.ps1` expects the native backend by default;
+`-ExpectedBackend interpreter` supports historical diagnostic builds. Normal
+interactive QA launches retain normal audio.
 
 For the orientation regression, use an emulator started with `-no-audio` and
 with the ROM/BIOS already configured:

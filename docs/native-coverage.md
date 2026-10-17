@@ -115,10 +115,24 @@ already present in the original native corpus remain unqualified. These
 results establish coverage for the sampled routes, not universal backend
 equivalence or every possible playthrough.
 
-## Platform limit
+## Android validation
 
-Android currently still forces the interpreter in `src/main.cpp`. Desktop
-coverage qualification does not establish Android execution correctness or
-improve the installed Android release's CPU backend. Remove that restriction
-only after native Android gameplay has been qualified separately.
-The expanded generated corpus also passes an Android ARM64 build check.
+Android 0.0.4 uses the expanded native corpus by default. The earlier desktop
+report records the state before that Android change; Android runtime evidence
+is recorded in the [Android report](../tests/android-native-2026-10-17.json).
+Desktop coverage or a successful Android build alone
+does not establish Android runtime correctness or cross-build equivalence.
+
+`tools/android-native-coverage.py` exercises an already-installed, debuggable
+QA APK over the shared mobile TCP hook. It mutes only the diagnostic launch,
+uses a separate test save, verifies the owner's SRAM hash, and restores the
+prior debug arguments. The normal install and interactive play retain audio.
+
+```powershell
+python tools/android-native-coverage.py --serial emulator-5554 --cases build-coverage/cases --output release-stage/android-check --game-ids 57,69,86,79,36,346,1,17,329,44
+```
+
+Device checks use neutral gyro input and alternating neutral/A periods;
+windowed orientation and sensor checks are separate. Keep their private
+snapshots out of Git. The phone and emulator each need their own forwarded
+port when checked concurrently (`--port`).

@@ -61,13 +61,6 @@ int warioware_main(int argc, char** argv) {
     mobile.game_config = GBARECOMP_DEFAULT_GAME_CONFIG;
     mobile.program_name = "./WarioWareTwistedRecomp";
     if (gbarecomp::mobile_prepare_process(args, mobile)) {
-        // Android v0.0.1 validated this title on the interpreter CPU backend
-        // (the static corpus hit timing-dependent indirect blocks on devices).
-        // Keep it until the static corpus is re-validated on the S22 now that
-        // the game thread has a desktop-sized stack.
-#if defined(__ANDROID__)
-        setenv("GBARECOMP_FORCE_INTERP", "1", 1);
-#endif
         args.emplace_back("--gyro-sensitivity");
         args.emplace_back("1.0");
     }

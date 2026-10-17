@@ -7,7 +7,9 @@ param(
         Join-Path $PSScriptRoot "..\android\artifacts\s22-device-validation"
     ),
     [int]$BootWaitSeconds = 25,
-    [int]$GameWaitSeconds = 30
+    [int]$GameWaitSeconds = 30,
+    [ValidateSet('native', 'interpreter')]
+    [string]$ExpectedBackend = 'native'
 )
 
 $ErrorActionPreference = "Stop"
@@ -124,8 +126,11 @@ if (-not $processId) {
 if (-not $activity) {
     $failures.Add("GbaGameActivity is not the resumed foreground activity")
 }
-if ($runtimeText -notmatch "cpu_backend=interpreter") {
-    $failures.Add("the device-validated interpreter CPU backend was not confirmed")
+if ($ExpectedBackend -eq 'native' -and $runtimeText -notmatch "cpu_backend=static-recompiled") {
+    $failures.Add("the native CPU backend was not confirmed")
+}
+if ($ExpectedBackend -eq 'interpreter' -and $runtimeText -notmatch "cpu_backend=interpreter") {
+    $failures.Add("the diagnostic interpreter CPU backend was not confirmed")
 }
 if ($runtimeText -match "SELF-HEAL|missing static coverage") {
     $failures.Add("the runtime reported an unexpected static-dispatch miss")

@@ -3504,3 +3504,22 @@ mode = "thumb"
 [[extra_func]]
 addr = 0x08125FD0
 mode = "thumb"
+
+# Additional callbacks observed during longer native Android windowed play.
+# Each entry starts at a reviewed Thumb push-LR prologue in the verified ROM.
+
+[[extra_func]]
+addr = 0x08013638
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08013664
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08013690
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801373C
+mode = "thumb"
