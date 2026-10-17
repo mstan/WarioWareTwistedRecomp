@@ -26,7 +26,7 @@ problems.
 ### Android
 
 1. Download the experimental APK from
-   [Android Releases](../../releases/tag/android-v0.0.3) and install it.
+   [Android Releases](../../releases/tag/android-v0.0.4) and install it.
 2. Open the app and select your **WarioWare: Twisted! (USA)** ROM and retail
    GBA BIOS.
 3. Hold the phone in landscape, configure the launcher if desired, and select
@@ -36,6 +36,8 @@ problems.
 The display stays fixed in landscape when you turn the phone upside down,
 including with Android auto-rotate enabled. Phone rotation still controls the
 game's gyroscope.
+
+Version 0.0.4 uses the expanded native CPU corpus on Android by default.
 
 The Android launcher uses the system file picker and remembers valid files.
 Enable **Skip launcher on boot** to start the game directly on later launches.
@@ -105,6 +107,10 @@ remain local and are never included in public releases.
 Contributors can run `pwsh tools/verify-attract.ps1` for the automated desktop
 acceptance route and `pwsh tools/make_release.ps1 -Version 0.0.1` to build a
 sanitized Windows package.
+
+The [native coverage guide](docs/native-coverage.md) describes isolated,
+muted microgame simulations, test-only Spindex unlock/jump cheats, and
+comparison against the interpreter.
 
 ## License
 

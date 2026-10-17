@@ -1,0 +1,167 @@
+{
+  "date_utc": "2026-10-17",
+  "version": "0.0.4",
+  "version_code": 4,
+  "payload_version": 5,
+  "engine_commit": "253db8cd463cf52faa082c9d7954323158723848",
+  "ui_commit": "e45e1f3062731abc188e351cad3608730b01fa12",
+  "rom_sha1": "f0102d0d6f7596fe853d5d0a94682718278e083a",
+  "bios_sha1": "300c20df6731a33952ded8c436f7f186d25d3492",
+  "game_toml_sha256": "8d8596d22a8afcc724ca18c6a5c5451f620b98cad1c5fa53cb486efb683d0797",
+  "game_main_sha256": "9444930890165192340893dbf4be54b6134e5361ab3e1ce85ee6f04f077bc83f",
+  "cases_manifest_sha256": "33a0ddeb82d4831461e34e4d98f0b619de42ecf7dfce3b9845154d4a2cd96068",
+  "artifact": {
+    "native_library_sha256": "d8aca725ba43d4516aa7b1efd9bfe4574a112e9fd40fc48124531255e4032cb7",
+    "qa_and_release_native_libraries_identical": true,
+    "abis": [
+      "arm64-v8a"
+    ],
+    "private_assets_found": false,
+    "apk_sha256": "789e7f66f5f3d40131ea564694ef29423a5bee1b4a4e64c1d8ce8995893584d7",
+    "apk_bytes": 20952085,
+    "filename": "WarioWareTwistedRecomp-android-arm64-v0.0.4-experimental.apk",
+    "signing_cert_sha256": "504eca3c9dff1f445ec072f497a458a9689bb77d938094066494e16e9b6983bf",
+    "signing_cert_matches_previous_release": true,
+    "debuggable": false
+  },
+  "build": {
+    "assembleDebug": "PASS",
+    "assembleRelease": "PASS",
+    "ndk": "27.1.12297006",
+    "public_release_emulator_smoke": "Installed nondebuggable versionCode 4; normal launch reaches GbaGameActivity and retains landscape orientation.",
+    "native_code": "Release configuration; identical libmain.so in QA and public APKs"
+  },
+  "emulator": {
+    "avd": "Pixel_7_API_35",
+    "api": 35,
+    "system_abis": "x86_64,arm64-v8a",
+    "execution": "The ARM64 APK runs through the Android emulator native bridge on an x86_64 system image.",
+    "backend": "static-recompiled; Android no longer forces the interpreter",
+    "runtime_recompilation": false,
+    "cold_boot": {
+      "frames": 900,
+      "dispatch_misses": 0,
+      "interpreted_insns": 0
+    },
+    "microgames": {
+      "distinct_game_ids": 14,
+      "game_ids": [
+        57,
+        69,
+        86,
+        79,
+        36,
+        346,
+        1,
+        17,
+        329,
+        44,
+        186,
+        308,
+        246,
+        0
+      ],
+      "categories": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "frames_per_case": 300,
+      "verified_runtime_callback_records": 14,
+      "input": "Alternating 60-frame neutral/A periods; neutral gyro in command-driven mode.",
+      "process_isolation": "One process for this bounded device check, loading an initialized snapshot per case.",
+      "dispatch_misses": 0,
+      "interpreted_insns": 0,
+      "healed_native": 0,
+      "player_save_preserved": true
+    },
+    "orientation": {
+      "passed": true,
+      "poses": [
+        {
+          "auto_rotate": 0,
+          "pose": "landscape",
+          "requested": "SCREEN_ORIENTATION_LANDSCAPE",
+          "rotation": 1
+        },
+        {
+          "auto_rotate": 0,
+          "pose": "reverse-landscape",
+          "requested": "SCREEN_ORIENTATION_LANDSCAPE",
+          "rotation": 1
+        },
+        {
+          "auto_rotate": 0,
+          "pose": "portrait",
+          "requested": "SCREEN_ORIENTATION_LANDSCAPE",
+          "rotation": 1
+        },
+        {
+          "auto_rotate": 0,
+          "pose": "upside-down",
+          "requested": "SCREEN_ORIENTATION_LANDSCAPE",
+          "rotation": 1
+        },
+        {
+          "auto_rotate": 1,
+          "pose": "reverse-landscape",
+          "requested": "SCREEN_ORIENTATION_LANDSCAPE",
+          "rotation": 1
+        },
+        {
+          "auto_rotate": 1,
+          "pose": "portrait",
+          "requested": "SCREEN_ORIENTATION_LANDSCAPE",
+          "rotation": 1
+        },
+        {
+          "auto_rotate": 1,
+          "pose": "landscape",
+          "requested": "SCREEN_ORIENTATION_LANDSCAPE",
+          "rotation": 1
+        }
+      ],
+      "same_process_all_poses": true,
+      "display_rotation_fixed": true
+    },
+    "windowed_play": {
+      "passed": true,
+      "renderer": "OpenGL ES 2",
+      "native_backend_log_verified": true,
+      "gyro_active_rad_per_second": 1.25,
+      "gyro_log_verified": true,
+      "dispatch_misses": 0,
+      "interpreted_insns": 0,
+      "longer_play_callback_roots_added": [
+        "0x08013638",
+        "0x08013664",
+        "0x08013690",
+        "0x0801373C"
+      ],
+      "test_audio": "Zero launch volume and emulator -no-audio; normal install has no diagnostic arguments."
+    }
+  },
+  "physical_phone": {
+    "model": "Samsung Galaxy S22 Ultra",
+    "native_candidate_installed_in_place": true,
+    "first_install_time_preserved": true,
+    "fresh_private_backup_retained_locally": true,
+    "native_runtime_qualified": false,
+    "final_release_apk_installed": false,
+    "status": "Phone disconnected after initial native 0.0.4 candidate installation, before runtime QA and the four additional callback roots."
+  },
+  "limits": [
+    "Android checks sample startup, 14 microgames across all ten rosters, windowed play, gyro and seven orientation poses; they are not an exhaustive playthrough.",
+    "The 223-case desktop report is historical evidence for the earlier corpus, not a rerun of this Android APK.",
+    "No new cross-platform memory or hardware-equivalence claim; 18 pre-existing native/interpreter differences remain recorded in the desktop report.",
+    "Physical S22 native runtime qualification and final APK installation still require reconnection.",
+    "Orientation and gyro checks ran in separate launches. The orientation launch lost its final diagnostic log; the repeated windowed check retained startup and active-gyro evidence."
+  ]
+}
