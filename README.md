@@ -17,7 +17,7 @@ own legally obtained dumps.
 
 The game boots and runs on Windows and Android, including its menus,
 microgames, cartridge saves, and gyro-controlled stages. Android has been
-tested on a Galaxy S22 Ultra. The initial `v0.0.1` builds are experimental, so
+tested on a Galaxy S22 Ultra. These builds are experimental, so
 back up important saves and report repeatable crashes or motion-control
 problems.
 
@@ -26,12 +26,16 @@ problems.
 ### Android
 
 1. Download the experimental APK from
-   [Android Releases](../../releases/tag/android-v0.0.1) and install it.
+   [Android Releases](../../releases/tag/android-v0.0.3) and install it.
 2. Open the app and select your **WarioWare: Twisted! (USA)** ROM and retail
    GBA BIOS.
 3. Hold the phone in landscape, configure the launcher if desired, and select
    **Play**.
 4. Twist the phone like the original cartridge to control gyro microgames.
+
+The display stays fixed in landscape when you turn the phone upside down,
+including with Android auto-rotate enabled. Phone rotation still controls the
+game's gyroscope.
 
 The Android launcher uses the system file picker and remembers valid files.
 Enable **Skip launcher on boot** to start the game directly on later launches.

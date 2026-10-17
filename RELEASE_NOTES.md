@@ -1,4 +1,16 @@
-# WarioWareTwistedRecomp v0.0.1
+# WarioWare: Twisted! Android v0.0.3
+
+- Fix the game flipping between landscape directions when the phone is turned
+  upside down, even with Android auto-rotate disabled. Setup and gameplay now
+  stay in one landscape direction while motion controls remain available.
+- Preserve the display lock when SDL creates or resizes the game window.
+- Keep the original Android signing certificate and application ID so this
+  installs as an update, preserving imported ROM/BIOS files, settings and saves.
+
+Experimental arm64 APK for Android 9 or newer. Supply your own matching USA
+ROM and GBA BIOS; neither is included. Windows remains at v0.0.1.
+
+# WarioWareTwistedRecomp Windows v0.0.1
 
 Initial private Windows x64 release of **WarioWare: Twisted!** for the
 `gbarecomp` runtime.

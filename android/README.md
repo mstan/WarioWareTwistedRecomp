@@ -19,6 +19,20 @@ and validate with the engine scripts:
 See `gbarecomp/platform/android/tools/README.md` for all options (ABIs,
 engine/recomp-ui worktree roots, AVD bootstrap).
 
+For the orientation regression, use an emulator started with `-no-audio` and
+with the ROM/BIOS already configured:
+
+```powershell
+python tools/validate-orientation.py --serial emulator-5554 --activity setup --output release-stage/orientation-setup
+python tools/validate-orientation.py --serial emulator-5554 --activity game --output release-stage/orientation-game
+```
+
+The check injects physical acceleration through landscape, reverse landscape,
+portrait and upside-down poses with system auto-rotate both off and on. It
+asserts fixed display rotation and orientation requests, records screenshots
+and Android dumps, and restores the original rotation settings and acceleration.
+Use `--expect-flip` with the previous build to reproduce the original bug.
+
 Normal builds use a first-launch document picker, verify user-supplied assets,
 and store them in the app's private directory. The public APK contains neither
 file. APK files are ignored by Git.
@@ -37,6 +51,8 @@ not be published or attached to a public release.
 
 ## Controls
 
+- Gameplay stays in a fixed landscape direction, including when the phone
+  is upside down. Android auto-rotate does not change the game display.
 - Rotate the phone around its screen-normal axis for cartridge gyro input.
 - A connected controller, including DualSense motion, remains supported.
 - Touch controls provide the GBA D-pad, A, B, L, R, Start, and Select.
