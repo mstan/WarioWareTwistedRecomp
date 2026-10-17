@@ -106,6 +106,10 @@ Contributors can run `pwsh tools/verify-attract.ps1` for the automated desktop
 acceptance route and `pwsh tools/make_release.ps1 -Version 0.0.1` to build a
 sanitized Windows package.
 
+The [native coverage guide](docs/native-coverage.md) describes isolated,
+muted microgame simulations, test-only Spindex unlock/jump cheats, and
+comparison against the interpreter.
+
 ## License
 
 PolyForm Noncommercial 1.0.0 — see [`LICENSE`](LICENSE). Third-party

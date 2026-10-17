@@ -1,0 +1,100 @@
+{
+  "date_utc": "2026-10-17",
+  "platform": "Windows x86_64",
+  "compiler": "MSYS2 GCC 15.2.0; Release, generated shards -O2",
+  "engine_commit": "253db8cd463cf52faa082c9d7954323158723848",
+  "baseline_game_commit": "67d702dbe8da062ad43e319e240f24d09bfdd9c2",
+  "rom_sha1": "f0102d0d6f7596fe853d5d0a94682718278e083a",
+  "bios_sha1": "300c20df6731a33952ded8c436f7f186d25d3492",
+  "native_executable_sha256": "682ce33d9c73e9829d3cb93f02e46f30bdc892e9a2f75eaf760b2d74dce8092d",
+  "baseline_executable_sha256": "7d0f7c8acea945d69bc0491be887a5ab3290b7af6e65d54723bbb0e368bca71b",
+  "config_sha256": "274217115bcb2b45afd3ab0545ad6852eea448f3da83dd4f79de4ddb96cfe5c3",
+  "cases_manifest_sha256": "33a0ddeb82d4831461e34e4d98f0b619de42ecf7dfce3b9845154d4a2cd96068",
+  "settings": {
+    "runtime_recompilation": false,
+    "bios_boot_hle": "existing default",
+    "audio_output": "dummy",
+    "gyro": "per-cartridge-sample triangle sweep",
+    "input": "alternating 60-frame neutral/A periods",
+    "process_isolation": "fresh process per microgame"
+  },
+  "microgames": {
+    "distinct_game_ids": 223,
+    "verified_runtime_callback_records": 223,
+    "frames_per_case": 600,
+    "total_frames": 133800,
+    "fully_static_cases": 223,
+    "dispatch_misses": 0,
+    "interpreted_insns": 0,
+    "healed_native": 0,
+    "baseline_interpreted_insns": 3885180166,
+    "first_expanded_corpus_interpreted_insns": 43687338
+  },
+  "parity": {
+    "compared": [
+      "IWRAM",
+      "EWRAM",
+      "VRAM",
+      "palette",
+      "OAM",
+      "screenshot"
+    ],
+    "exact_original_native_matches": 221,
+    "exact_interpreter_matches": 205,
+    "matches_at_least_one_comparison": 223,
+    "different_from_original_native_but_exact_interpreter_match": [
+      186,
+      308
+    ],
+    "preexisting_native_vs_interpreter_difference_ids": [
+      12,
+      61,
+      108,
+      111,
+      130,
+      147,
+      160,
+      213,
+      246,
+      282,
+      290,
+      294,
+      323,
+      345,
+      349,
+      353,
+      355,
+      363
+    ]
+  },
+  "other_routes": {
+    "cold_boot_900_frames": {
+      "dispatch_misses": 0,
+      "interpreted_insns": 0,
+      "all_five_memory_regions_match_baseline": true
+    },
+    "modes_story_wario_intro": {
+      "dispatch_misses": 0,
+      "interpreted_insns": 0,
+      "all_five_memory_regions_match_baseline": true
+    },
+    "spindex_character_game_selection_and_launch": {
+      "dispatch_misses": 0,
+      "interpreted_insns": 0,
+      "all_five_memory_regions_match_interpreter": true
+    }
+  },
+  "limits": [
+    "Sampled paths and default difficulty, not exhaustive variations or souvenirs.",
+    "Interpreter shares framework device models; no independent emulator or hardware oracle.",
+    "18 native/interpreter checkpoint differences already existed in the original native corpus; their cause remains unqualified.",
+    "Android native execution is not qualified and still forces the interpreter. Owner phone and save were not changed."
+  ],
+  "android_compile_check": {
+    "abi": "arm64-v8a",
+    "ndk": "27.1.12297006",
+    "assembleDebug": "PASS",
+    "native_runtime_qualified": false,
+    "installed_on_owner_phone": false
+  }
+}

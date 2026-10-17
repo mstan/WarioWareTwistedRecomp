@@ -17,6 +17,8 @@ recomp_cache*/
 *.srm
 *.fla
 *.flash
+*.state
+*.state.cheats.json
 recomp_coverage*.json
 recomp_master_misses*.toml.frag
 recomp_seed_proposals.toml

@@ -16,7 +16,361 @@ load_address = 0x08000000
 size = 0x01000000
 entry_pc = 0x08000000
 speculative_literal_harvest = false
+# The reviewed executable span ends before the SDK data/IRQ table at 0x08133CFC.
+# Callback-table targets must still pass the finder's compiler-prologue checks.
+aot_scan_start = 0x080001F8
+aot_scan_end = 0x08133CFC
+static_resume_all = true
 codegen_shards = 16
+
+[[code_copy]]
+runtime_start = 0x030038F0
+source_start = 0x0800010C
+size = 0x200
+name = "irqDispatcherRam"
+note = "DMA3 setup at 0x080002BE copies 0x80 words; source/destination/count literals at 0x0800039C..0x080003A4"
+
+[[extra_func]]
+addr = 0x030038F0
+mode = "arm"
+name = "irqDispatcherRam"
+note = "ARM IRQ entry; byte-identical ROM backing observed at the 900-frame checkpoint"
+
+[[code_copy]]
+runtime_start = 0x030004A8
+source_start = 0x08000B94
+size = 0x12C
+name = "decompressorRam"
+note = "0x08003C84 copies [0x08000B94,0x08000CC0) to 0x030004A8; final data word is mutable"
+
+[[extra_func]]
+addr = 0x030004A8
+mode = "arm"
+name = "decompressorRam"
+note = "Reviewed ARM prologue and ROM copy writer at 0x08003C84"
+
+[[extra_func]]
+addr = 0x03000530
+mode = "arm"
+resume = true
+name = "decompressorRamResume"
+note = "Observed continuation inside the copied ARM decompressor; maps to source 0x08000C1C"
+
+[[code_copy]]
+runtime_start = 0x03000D38
+source_start = 0x08000E90
+size = 0x20C
+name = "divisionRam"
+note = "DMA3 setup at 0x08007898 copies [0x08000E90,0x0800109C); literals at 0x080078BC..0x080078C4"
+
+[[extra_func]]
+addr = 0x03000D38
+mode = "arm"
+name = "divisionRam"
+note = "ARM arithmetic helper observed on every frame; full copy matches ROM"
+
+[[code_copy]]
+runtime_start = 0x030036DC
+source_start = 0x0812F1C8
+size = 0xA4
+name = "audioRamA"
+note = "Full 0xA4-byte image matches ROM at the 900-frame checkpoint; Thumb veneer switches to ARM at +0x10"
+
+[[extra_func]]
+addr = 0x030036DC
+mode = "thumb"
+name = "audioRamA"
+note = "Observed Thumb entry into copied audio helper"
+
+[[extra_func]]
+addr = 0x030036EC
+mode = "arm"
+name = "audioRamABody"
+note = "ARM target of ADR/BX at runtime 0x030036E8/0x030036EA"
+
+[[code_copy]]
+runtime_start = 0x03003784
+source_start = 0x0812F26C
+size = 0xB0
+name = "audioRamB"
+note = "Full 0xB0-byte image matches ROM at the 900-frame checkpoint; Thumb veneer switches to ARM at +0x10"
+
+[[extra_func]]
+addr = 0x03003784
+mode = "thumb"
+name = "audioRamB"
+note = "Observed Thumb entry into copied audio helper"
+
+[[extra_func]]
+addr = 0x03003794
+mode = "arm"
+name = "audioRamBBody"
+note = "ARM target of ADR/BX at runtime 0x03003790/0x03003792"
+
+[[extra_func]]
+addr = 0x0800109C
+mode = "arm"
+name = "decompressorRom"
+note = "Indirect ARM entry; push/stmdb/ldm/rors prologue independently verified with Capstone and ARM objdump"
+
+[[extra_func]]
+addr = 0x03007E48
+source_addr = 0x0812FFF8
+mode = "thumb"
+name = "sramReadStack48"
+note = "SRAM read helper copied onto the stack by 0x0813005A; always-on trace seq 2263..2297 records all 0x24 source bytes before dispatch"
+
+[[extra_func]]
+addr = 0x03007E4C
+source_addr = 0x0812FFF8
+mode = "thumb"
+name = "sramReadStack4c"
+note = "Same SRAM read helper at the second observed stack placement; trace seq 56 onward identifies source 0x0812FFF8"
+
+[[extra_func]]
+addr = 0x080012D8
+mode = "thumb"
+name = "vblankCallback"
+note = "Observed Thumb entry; push-lr prologue at 0x080012D8, ending with pop/bx at 0x080012EC"
+
+[[extra_func]]
+addr = 0x08008F14
+mode = "thumb"
+name = "earlyUiCallback"
+note = "Observed high-frequency Thumb entry; push-r4/r5/lr prologue precedes existing resume seed 0x08008F1C"
+
+[[resume_range]]
+start = 0x080012F8
+end = 0x08001332
+mode = "thumb"
+note = "VBlank wait loop interrupted at several interior instructions in the clean 900-frame boot"
+
+[[resume_range]]
+start = 0x08001424
+end = 0x08001436
+mode = "thumb"
+note = "Small RNG helper interrupted at interior instructions while polling VBlank"
+
+[[extra_func]]
+addr = 0x080002AC
+mode = "thumb"
+resume = true
+name = "dmaSetupResume"
+note = "Observed DMA setup continuation in clean boot"
+
+[[extra_func]]
+addr = 0x080002EE
+mode = "thumb"
+resume = true
+name = "dmaSetupResume2"
+note = "Observed DMA setup continuation after compiling the initial polling-loop continuation"
+
+[[extra_func]]
+addr = 0x08006F48
+mode = "thumb"
+resume = true
+name = "startupCallbackResume"
+note = "Observed interior Thumb continuation in clean boot"
+
+[[extra_func]]
+addr = 0x0812EEE4
+mode = "thumb"
+resume = true
+name = "audioSetupResume"
+note = "Observed pop/bx epilogue continuation in clean boot"
+
+# Story playback enables the main MP2K mixer after the quiet startup route.
+[[code_copy]]
+runtime_start = 0x030002C8
+source_start = 0x08000CC0
+size = 0x1D0
+name = "decompressor2Ram"
+note = "Second copied ARM decompressor; ROM backing matches the observed story-transition RAM image"
+
+[[extra_func]]
+addr = 0x030002C8
+mode = "arm"
+name = "decompressor2Ram"
+
+[[code_copy]]
+runtime_start = 0x03003080
+source_start = 0x0812F31C
+size = 0x65C
+name = "soundMainRam"
+note = "Observed mixer copy; first 0x658 bytes match ROM and the final literal is relocated to another RAM helper"
+
+[[extra_func]]
+addr = 0x03003080
+mode = "thumb"
+name = "soundMainRam"
+
+[[extra_func]]
+addr = 0x03003090
+mode = "arm"
+name = "soundMainRamBody"
+note = "ARM target of the Thumb ADR/BX veneer at 0x0300308C/0x0300308E"
+
+# Indirect callbacks observed on the reproducible Modes -> Story -> Wario route.
+# Thumb push prologues and leaf bodies were reviewed against the verified ROM.
+[[extra_func]]
+addr = 0x080052E4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08009AAC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800B61C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800BFC8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800E49C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08013AC0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08013B78
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08013D2C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08014A70
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08014DD4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08014E28
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08014E70
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08014F20
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801605C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801A340
+mode = "thumb"
+resume = true
+note = "Pop/bx continuation immediately before the distinct push prologue at 0x0801A344"
+
+[[extra_func]]
+addr = 0x0801A344
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801A6B0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801A73C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801A7C4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801A7E4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801A878
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801A8F4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801AB10
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023210
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023E2C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023E84
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023E90
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08024020
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08024080
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081319B4
+mode = "arm"
+note = "Observed ARM push-r4/r5/r6/r7/r8/r9/r10/r11/r12/lr math helper"
+
+[[extra_func]]
+addr = 0x08015D1C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08015F6C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016248
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016754
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801AAD4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801AAE8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801AAFC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0802403C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08024078
+mode = "thumb"
+note = "Observed standalone empty callback (Thumb bx lr) reached once per story frame"
 
 [identity]
 sha1 = "f0102d0d6f7596fe853d5d0a94682718278e083a"
@@ -258,3 +612,2895 @@ mode = "thumb"
 resume = true
 name = "storyResume13"
 note = "cold Android story resume entry"
+
+# Spindex roster callback records: verified USA catalog, 223 distinct microgames.
+# Loader: 0x080173B8 uses 0x0892A1D8 + 24 * ID. Runtime task dispatcher
+# 0x0800B310 calls callback fields at record +0x00/+0x08/+0x10/+0x18.
+
+[[jump_table]]
+addr = 0x08942F50
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGamespindex"
+note = "Spindex category 4, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089650FC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame0"
+note = "Spindex category 4, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089651FC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame1"
+note = "Spindex category 6, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089653C8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame2"
+note = "Spindex category 6, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089655EC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame4"
+note = "Spindex category 6, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08965724
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame5"
+note = "Spindex category 4, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08965880
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame6"
+note = "Spindex category 4, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08965984
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame7"
+note = "Spindex category 7, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08965A80
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame8"
+note = "Spindex category 5, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08967248
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame9"
+note = "Spindex category 8, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08967350
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame10"
+note = "Spindex category 6, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896789C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame11"
+note = "Spindex category 7, slot 23; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08967AB4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame12"
+note = "Spindex category 1, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08967C7C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame13"
+note = "Spindex category 2, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08967D78
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame14"
+note = "Spindex category 5, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08967E88
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame15"
+note = "Spindex category 5, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08967FC4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame16"
+note = "Spindex category 3, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08968128
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame17"
+note = "Spindex category 7, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896879C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame20"
+note = "Spindex category 7, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089689B8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame21"
+note = "Spindex category 1, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08968D00
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame23"
+note = "Spindex category 5, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08969030
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame27"
+note = "Spindex category 5, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08969354
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame29"
+note = "Spindex category 1, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08969608
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame33"
+note = "Spindex category 2, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896980C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame34"
+note = "Spindex category 0, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08969B9C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame36"
+note = "Spindex category 4, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08969D84
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame37"
+note = "Spindex category 7, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08969EC8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame38"
+note = "Spindex category 4, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896A030
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame39"
+note = "Spindex category 3, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896A324
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame41"
+note = "Spindex category 9, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896A42C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame42"
+note = "Spindex category 3, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896A570
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame43"
+note = "Spindex category 0, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896A75C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame44"
+note = "Spindex category 9, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896A870
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame45"
+note = "Spindex category 2, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896AA8C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame47"
+note = "Spindex category 8, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896AB94
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame48"
+note = "Spindex category 0, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896AD68
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame49"
+note = "Spindex category 4, slot 21; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896AF90
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame51"
+note = "Spindex category 1, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896B158
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame52"
+note = "Spindex category 4, slot 22; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896B7D8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame53"
+note = "Spindex category 3, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896B8BC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame54"
+note = "Spindex category 5, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896B9B8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame55"
+note = "Spindex category 2, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896BAA8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame56"
+note = "Spindex category 2, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896BBD4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame57"
+note = "Spindex category 0, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896BD48
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame58"
+note = "Spindex category 6, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896BFA0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame59"
+note = "Spindex category 9, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896C1D4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame60"
+note = "Spindex category 9, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896C364
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame61"
+note = "Spindex category 3, slot 21; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896C500
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame62"
+note = "Spindex category 3, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896C734
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame63"
+note = "Spindex category 9, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896C95C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame65"
+note = "Spindex category 0, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896CAC0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame66"
+note = "Spindex category 6, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896CCAC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame67"
+note = "Spindex category 0, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896CE44
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame68"
+note = "Spindex category 2, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896D120
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame69"
+note = "Spindex category 1, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896D27C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame70"
+note = "Spindex category 4, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896D618
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame71"
+note = "Spindex category 9, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896D97C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame72"
+note = "Spindex category 8, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896DA90
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame73"
+note = "Spindex category 8, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896DCB8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame74"
+note = "Spindex category 4, slot 23; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896E00C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame75"
+note = "Spindex category 2, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896E134
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame76"
+note = "Spindex category 6, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896E368
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame78"
+note = "Spindex category 8, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896E4B8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame79"
+note = "Spindex category 3, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896E7B4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame80"
+note = "Spindex category 2, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896E94C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame81"
+note = "Spindex category 7, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896EB98
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame82"
+note = "Spindex category 5, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896EC7C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame83"
+note = "Spindex category 8, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896EEDC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame86"
+note = "Spindex category 2, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896F44C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame99"
+note = "Spindex category 3, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896F830
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame107"
+note = "Spindex category 0, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896F99C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame108"
+note = "Spindex category 0, slot 25; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896FAB0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame109"
+note = "Spindex category 0, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896FBF4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame110"
+note = "Spindex category 3, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896FD38
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame111"
+note = "Spindex category 7, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896FE28
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame112"
+note = "Spindex category 6, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0896FF50
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame113"
+note = "Spindex category 0, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08970040
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame114"
+note = "Spindex category 6, slot 21; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08970404
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame120"
+note = "Spindex category 2, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08970620
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame121"
+note = "Spindex category 2, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08970A6C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame124"
+note = "Spindex category 6, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08970B74
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame125"
+note = "Spindex category 2, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08970C94
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame126"
+note = "Spindex category 0, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08970FB4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame128"
+note = "Spindex category 1, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08971098
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame129"
+note = "Spindex category 5, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089711F4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame130"
+note = "Spindex category 7, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089716F4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame137"
+note = "Spindex category 8, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08971844
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame138"
+note = "Spindex category 1, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08971B58
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame140"
+note = "Spindex category 1, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08971CB8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame141"
+note = "Spindex category 6, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08971E98
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame142"
+note = "Spindex category 7, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089728B4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame145"
+note = "Spindex category 5, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08973910
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame146"
+note = "Spindex category 6, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08973ADC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame147"
+note = "Spindex category 3, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08973CBC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame148"
+note = "Spindex category 4, slot 24; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08973F0C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame149"
+note = "Spindex category 1, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08974014
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame150"
+note = "Spindex category 0, slot 23; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08974748
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame156"
+note = "Spindex category 7, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08974860
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame157"
+note = "Spindex category 3, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089749B0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame158"
+note = "Spindex category 3, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08974AF0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame159"
+note = "Spindex category 8, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08974BF8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame160"
+note = "Spindex category 8, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08974D00
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame161"
+note = "Spindex category 3, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089750CC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame163"
+note = "Spindex category 1, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089751E4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame164"
+note = "Spindex category 4, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897551C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame165"
+note = "Spindex category 4, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08975618
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame166"
+note = "Spindex category 6, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08975848
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame167"
+note = "Spindex category 1, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08975920
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame168"
+note = "Spindex category 0, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08975BC4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame175"
+note = "Spindex category 6, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08975D50
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame176"
+note = "Spindex category 2, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08975E54
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame177"
+note = "Spindex category 5, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976064
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame178"
+note = "Spindex category 2, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089761A8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame179"
+note = "Spindex category 9, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976288
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame180"
+note = "Spindex category 6, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976390
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame181"
+note = "Spindex category 4, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976578
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame182"
+note = "Spindex category 3, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976844
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame184"
+note = "Spindex category 0, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976AB8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame186"
+note = "Spindex category 8, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976C2C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame187"
+note = "Spindex category 7, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976E7C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame188"
+note = "Spindex category 3, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08976FCC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame189"
+note = "Spindex category 7, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089771C4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame191"
+note = "Spindex category 4, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08977308
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame192"
+note = "Spindex category 8, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897746C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame193"
+note = "Spindex category 7, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089776A8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame195"
+note = "Spindex category 1, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08977870
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame196"
+note = "Spindex category 8, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08977994
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame197"
+note = "Spindex category 8, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08977A9C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame198"
+note = "Spindex category 1, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08977EC4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame203"
+note = "Spindex category 6, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897841C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame205"
+note = "Spindex category 1, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089787F0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame206"
+note = "Spindex category 4, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897895C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame207"
+note = "Spindex category 7, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08978BFC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame208"
+note = "Spindex category 4, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08978E54
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame210"
+note = "Spindex category 0, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089796F8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame213"
+note = "Spindex category 0, slot 28; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08979D98
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame214"
+note = "Spindex category 4, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08979FF0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame215"
+note = "Spindex category 8, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897A78C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame219"
+note = "Spindex category 7, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897A948
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame220"
+note = "Spindex category 8, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897AAA4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame221"
+note = "Spindex category 4, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897ABAC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame222"
+note = "Spindex category 5, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897AE04
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame223"
+note = "Spindex category 7, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897B02C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame225"
+note = "Spindex category 0, slot 24; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897B9B4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame238"
+note = "Spindex category 3, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897C250
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame241"
+note = "Spindex category 1, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897C878
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame246"
+note = "Spindex category 0, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897CAB8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame247"
+note = "Spindex category 6, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897CCC8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame249"
+note = "Spindex category 0, slot 27; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897CDB8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame250"
+note = "Spindex category 8, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897CECC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame251"
+note = "Spindex category 0, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897D07C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame252"
+note = "Spindex category 1, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897D304
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame254"
+note = "Spindex category 5, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897D614
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame256"
+note = "Spindex category 2, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897D82C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame257"
+note = "Spindex category 1, slot 22; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897DF1C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame259"
+note = "Spindex category 1, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897E1E8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame260"
+note = "Spindex category 3, slot 24; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897E8F0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame280"
+note = "Spindex category 5, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897E9F0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame281"
+note = "Spindex category 6, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897EAE0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame282"
+note = "Spindex category 0, slot 22; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897ECD4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame283"
+note = "Spindex category 3, slot 22; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897F054
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame287"
+note = "Spindex category 6, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897F3F0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame288"
+note = "Spindex category 1, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897F514
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame285"
+note = "Spindex category 0, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897F7B0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame289"
+note = "Spindex category 0, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897F894
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame290"
+note = "Spindex category 5, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0897FC90
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame294"
+note = "Spindex category 7, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089800BC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame296"
+note = "Spindex category 4, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089802CC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame298"
+note = "Spindex category 3, slot 23; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089803D0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame299"
+note = "Spindex category 5, slot 10; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089806BC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame301"
+note = "Spindex category 1, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08980890
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame303"
+note = "Spindex category 6, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08980C74
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame305"
+note = "Spindex category 7, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08980DC4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame306"
+note = "Spindex category 3, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08980ED8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame307"
+note = "Spindex category 2, slot 14; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08981A5C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame310"
+note = "Spindex category 8, slot 22; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089824CC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame308"
+note = "Spindex category 8, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089825F8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame309"
+note = "Spindex category 8, slot 21; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0898282C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame311"
+note = "Spindex category 9, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08982A24
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame313"
+note = "Spindex category 4, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08982B44
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame314"
+note = "Spindex category 0, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08982C80
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame315"
+note = "Spindex category 0, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08982E68
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame316"
+note = "Spindex category 2, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0898315C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame317"
+note = "Spindex category 4, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08983234
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame319"
+note = "Spindex category 0, slot 21; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08983330
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame320"
+note = "Spindex category 0, slot 13; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08983414
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame321"
+note = "Spindex category 5, slot 1; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0898357C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame322"
+note = "Spindex category 5, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089836BC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame323"
+note = "Spindex category 8, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08983988
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame325"
+note = "Spindex category 4, slot 15; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08983BB0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame326"
+note = "Spindex category 1, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08983DC4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame327"
+note = "Spindex category 2, slot 20; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984138
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame328"
+note = "Spindex category 3, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984228
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame329"
+note = "Spindex category 8, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984714
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame335"
+note = "Spindex category 1, slot 21; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089847F8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame336"
+note = "Spindex category 5, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984960
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame337"
+note = "Spindex category 7, slot 17; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984A88
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame338"
+note = "Spindex category 2, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984C5C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame339"
+note = "Spindex category 6, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984EE0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame341"
+note = "Spindex category 6, slot 22; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08984FE8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame342"
+note = "Spindex category 4, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089850F0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame343"
+note = "Spindex category 0, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089851E0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame344"
+note = "Spindex category 3, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0898533C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame345"
+note = "Spindex category 7, slot 21; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x0898544C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame346"
+note = "Spindex category 5, slot 0; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089855D0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame347"
+note = "Spindex category 7, slot 7; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08985870
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame349"
+note = "Spindex category 7, slot 18; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08985B14
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame351"
+note = "Spindex category 9, slot 2; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08985BF8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame352"
+note = "Spindex category 4, slot 19; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08985D44
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame353"
+note = "Spindex category 7, slot 22; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08985E44
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame354"
+note = "Spindex category 3, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08985F64
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame355"
+note = "Spindex category 2, slot 6; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089862B8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame356"
+note = "Spindex category 6, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089863CC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame357"
+note = "Spindex category 3, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089864C8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame358"
+note = "Spindex category 5, slot 5; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089865B8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame359"
+note = "Spindex category 3, slot 12; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089867A0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame360"
+note = "Spindex category 1, slot 11; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089868F0
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame361"
+note = "Spindex category 0, slot 26; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08986A54
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame362"
+note = "Spindex category 4, slot 9; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08986F48
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame363"
+note = "Spindex category 7, slot 4; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089871F4
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame365"
+note = "Spindex category 8, slot 3; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x089872D8
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame366"
+note = "Spindex category 5, slot 8; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08987404
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame367"
+note = "Spindex category 2, slot 16; four callback/argument pairs"
+
+[[jump_table]]
+addr = 0x08987C04
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "spindexGame370"
+note = "Spindex category 8, slot 16; four callback/argument pairs"
+
+# Additional indirect callbacks observed during the 25-game motion/button sweep.
+# Entry prologues and standalone leaf bodies reviewed against the verified ROM.
+
+[[extra_func]]
+addr = 0x08008CB0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08008CC6
+mode = "thumb"
+resume = true
+note = "Interior continuation in callback rooted at 0x08008CB0"
+
+[[extra_func]]
+addr = 0x0800B210
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800BA3C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800BBAC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800BBFC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800DF80
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800E000
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800ECD0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800F0FC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800F148
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016944
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016A68
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016B3C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016DAC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016E38
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08016F44
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08017088
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08017328
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801BD24
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C180
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C1E0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C1F8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C264
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C2DC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C2FC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C354
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0801C408
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080442E4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080442F8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0804E7E8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805F4B8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080625D4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080627F0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808AFA4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808AFFC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808B064
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0809E93C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0809E950
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0809EF9C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0809EFB0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080A526C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080B8B0C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080C7454
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080C746C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0810181C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08101870
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081018C0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08105034
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081050A8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081235CC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08123614
+mode = "thumb"
+
+# Remaining entries measured in the 223-game, 600-frame-per-game sweep.
+# Healing disabled; real Thumb prologues/leaf bodies and interior returns reviewed.
+
+[[extra_func]]
+addr = 0x0800B2B0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800BC80
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800DA20
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800E2FC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0800E334
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023620
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080236A4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080236A8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080236DC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080239FC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023AB4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023B58
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023BF4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023C08
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023C44
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023C74
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023C90
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023CCC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023D0C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023D6C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023DA8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08023DE0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08025B44
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08025B6C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0802C5E0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0802CA98
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0802DCD8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0802DCEC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0802F1AC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08030C84
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08031168
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0803177C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08036B74
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0803AD10
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0803C74C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0803E10C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0803E120
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0803E134
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0803E15C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08048B18
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08048B2C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08048B40
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08048B54
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080495A4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0804A684
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08050F58
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08051454
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08053F80
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08055D10
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08056358
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805640C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805907C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805A1D0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805D27C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805DA60
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805DA70
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805DA80
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0805DA90
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08060FC8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080640F8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0806410C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08064134
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08065320
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08066124
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0806936C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08069394
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0806BCAC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0806C8B8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0806DBA8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0806EDA8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08070214
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08070228
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08071144
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08071A14
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08074750
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08074764
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08076AF0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080784E0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08078560
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0807AEB8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0807AEF0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0807E7D8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0807E7EC
+mode = "thumb"
+resume = true
+note = "Interior return in callback rooted at 0x0807E7D8 or 0x0807E80C"
+
+[[extra_func]]
+addr = 0x0807E7FA
+mode = "thumb"
+resume = true
+note = "Interior return in callback rooted at 0x0807E7D8 or 0x0807E80C"
+
+[[extra_func]]
+addr = 0x0807E80C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0807E820
+mode = "thumb"
+resume = true
+note = "Interior return in callback rooted at 0x0807E7D8 or 0x0807E80C"
+
+[[extra_func]]
+addr = 0x0807E82E
+mode = "thumb"
+resume = true
+note = "Interior return in callback rooted at 0x0807E7D8 or 0x0807E80C"
+
+[[extra_func]]
+addr = 0x0807E840
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08080BA4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08080E1C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08084E64
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08085644
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808A838
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808A854
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808B04C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808B170
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0808BC3C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08098370
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08098C10
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08099A7C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0809AF90
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0809E3A0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080A2B24
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080A309C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080ABF04
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080AF260
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080AF274
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080B0854
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080B3B20
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BA8E8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BAB30
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BF25C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BF3C4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BF3F4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BF428
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BF448
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080BF470
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080C7A70
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080CC390
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080CC3A0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080DB84C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080DE834
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080DE850
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080DF1B4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080DF1F8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E4FA4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E5014
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E5058
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E5098
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E724C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E79D0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E9ED0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E9F5C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080E9FD4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080EF718
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080F2678
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080F44B8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080F4564
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080F99A4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080FDB64
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x080FE930
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081009E0
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081019A8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08101DE8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081102AC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081102CC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08113CC4
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08113CDC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081159FC
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08118734
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x081195D8
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0811961C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08119680
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0811DF5C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0811EB1C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0811EB30
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08121144
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0812130C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x0812188C
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08125B04
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08125B48
+mode = "thumb"
+
+[[extra_func]]
+addr = 0x08125FD0
+mode = "thumb"
