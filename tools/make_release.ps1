@@ -3,7 +3,7 @@ Build the WarioWareTwistedRecomp Windows x64 release zip.
 
 Modeled on MinishCapRecomp/tools/make_release.ps1. The archive contains only
 the stripped desktop executable, required runtime DLLs, recomp-ui assets,
-the overlay toolchain, the validated warm overlay cache, the game
+the overlay toolchain, the game
 configuration, and a release README.
 ROMs, BIOS images, saves, and Android APKs are explicitly rejected.
 
@@ -98,25 +98,8 @@ $ConfigStage = Join-Path $Stage 'variants\warioware_twisted'
 New-Item -ItemType Directory -Force $ConfigStage | Out-Null
 Copy-Item -LiteralPath $ConfigSource -Destination $ConfigStage
 
-# WarioWare copies several routines to RAM during boot. Its cold self-heal
-# route currently reaches an interpreter-only bridge that cannot reconstruct
-# one of those routines, while the validated warm cache reaches attract mode.
-# Ship DLLs only (never the ROM-derived C/log diagnostics) under both backend
-# names: auto selects gcc on a developer box and bundled tcc on a player box.
-$RomSha1 = 'f0102d0d6f7596fe853d5d0a94682718278e083a'
-$WarmCacheSource = Join-Path $Root `
-    "recomp_cache\$RomSha1\gcc\windows-x64\abi3-ram3"
-$WarmDlls = @(Get-ChildItem -LiteralPath $WarmCacheSource `
-    -Filter '*.dll' -File)
-if ($WarmDlls.Count -lt 1) {
-    throw "validated WarioWare warm overlay cache missing: $WarmCacheSource"
-}
-foreach ($Backend in @('gcc', 'tcc')) {
-    $WarmCacheStage = Join-Path $Stage `
-        "recomp_cache\$RomSha1\$Backend\windows-x64\abi3-ram3"
-    New-Item -ItemType Directory -Force $WarmCacheStage | Out-Null
-    Copy-Item -LiteralPath $WarmDlls.FullName -Destination $WarmCacheStage
-}
+# ROM-backed RAM copies are selected from the engine's byte-checked native
+# catalog. Packages start cold and carry no developer overlay cache.
 
 & (Join-Path $Engine 'tools\fetch_tcc.ps1') `
     -Toolchain (Join-Path $Stage 'overlay_toolchain') `
@@ -129,7 +112,7 @@ if ($LASTEXITCODE -ne 0) {
 # WarioWare: Twisted! - GBA static recompilation (Windows x64)
 
 This is the desktop v$Version release. Keep the executable, four DLLs,
-``assets``, ``overlay_toolchain``, ``recomp_cache``, and ``variants`` folders
+``assets``, ``overlay_toolchain``, and ``variants`` folders
 together.
 
 Run ``WarioWareTwistedRecomp.exe``. In the launcher, select your own
