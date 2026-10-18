@@ -78,11 +78,6 @@ int warioware_main(int argc, char** argv) {
     // an explicit diagnostic override, but disable it for normal play.
     set_environment_default("GBARECOMP_HANG_WATCHDOG", "0");
 
-    // The current static real-BIOS route stalls at its cartridge handoff for
-    // this title. Boot HLE skips only the intro; IRQs and unhandled SWIs still
-    // dispatch through the real recompiled BIOS during gameplay.
-    set_environment_default("GBARECOMP_BIOS_HLE", "1");
-
     // The engine's custom clock-domain bridge currently garbles this title's
     // otherwise-correct 65536 Hz mixer stream. Queue it directly and let SDL
     // perform only the host-device conversion.

@@ -18,8 +18,8 @@ def recompUiRoot = pick("recompUiRoot", "RECOMP_UI_ROOT", new File(gameRoot, "re
 
 ext.gbaGame = [
     applicationId : "com.mstan.wariowaretwisted",
-    versionCode   : 4,
-    versionName   : "0.0.4",
+    versionCode   : 5,
+    versionName   : "0.0.5",
     title         : "WarioWare: Twisted!",
     romLabel      : "WarioWare: Twisted! ROM",
     romSha1       : ["f0102d0d6f7596fe853d5d0a94682718278e083a"],
@@ -30,7 +30,7 @@ ext.gbaGame = [
     orientation   : "landscape-locked",
     gyro          : true,
     // Reinstall the authored runtime payload while preserving player data.
-    payloadVersion: "5",
+    payloadVersion: "6",
     setupNote     : "Rotate the phone around its screen-normal axis to play; touch " +
                     "and gamepads are also supported.",
     variant       : "warioware_twisted",
