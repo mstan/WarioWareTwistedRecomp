@@ -2,7 +2,8 @@
 
 This target is an experimental Android port for 64-bit ARM devices running
 Android 9 or newer, distributed as a debug-signed APK for sideload testing.
-Version 0.0.4 uses native execution by default, including the expanded Spindex
+Version 0.0.5 uses native execution and the real recompiled BIOS by default,
+including the expanded Spindex
 microgame corpus and ROM-backed routines copied into RAM. Uncovered paths
 still report interpreter fallback; the recorded coverage applies to tested
 routes, not every possible game variation.
