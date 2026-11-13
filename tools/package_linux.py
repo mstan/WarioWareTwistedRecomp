@@ -55,6 +55,12 @@ def main():
         licenses.mkdir()
         shutil.copy2(args.sdl_license, licenses / "SDL2.txt")
         shutil.copy2(args.sdl3_license, licenses / "SDL3.txt")
+        font_licenses = licenses / "fonts"
+        font_licenses.mkdir()
+        for name in ("LatoLatin-OFL.txt", "NotoSansSymbols2-OFL.txt", "OpenMoji-LICENSE.txt"):
+            target = font_licenses / name
+            shutil.copy2(ROOT / "tools/release-licenses" / name, target)
+            target.chmod(0o644)
         shutil.copy2(ROOT / "LICENSE", licenses / "WarioWareTwistedRecomp.txt")
         shutil.copy2(ROOT / "PERMISSIONS.md", licenses / "PERMISSIONS.md")
         for relative, name in (("gbarecomp", "gbarecomp"),
