@@ -43,6 +43,18 @@ asserts fixed display rotation and orientation requests, records screenshots
 and Android dumps, and restores the original rotation settings and acceleration.
 Use `--expect-flip` with the previous build to reproduce the original bug.
 
+With a debuggable QA build already running, check the actual gameplay
+presentation rectangle and capture the complete device surface:
+
+```powershell
+python tools/validate-presentation.py --serial emulator-5558 --output release-stage/presentation
+```
+
+The check reads the existing runtime presentation observations and compares the
+image against the maximal contained game aspect. It fails on the earlier fixed
+pad reservation; `--expect-reserved` asserts that negative control explicitly.
+It does not import assets, change settings, launch the game or use save slots.
+
 Normal builds use a first-launch document picker, verify user-supplied assets,
 and store them in the app's private directory. The public APK contains neither
 file. APK files are ignored by Git.

@@ -26,7 +26,7 @@ problems.
 ### Android
 
 1. Download the experimental APK from
-   [Android Releases](../../releases/tag/android-v0.0.4) and install it.
+   [Android Releases](../../releases/tag/android-v0.0.5) and install it.
 2. Open the app and select your **WarioWare: Twisted! (USA)** ROM and retail
    GBA BIOS.
 3. Hold the phone in landscape, configure the launcher if desired, and select
@@ -36,6 +36,10 @@ problems.
 The display stays fixed in landscape when you turn the phone upside down,
 including with Android auto-rotate enabled. Phone rotation still controls the
 game's gyroscope.
+
+Android gameplay fits the available display while preserving the game's aspect
+ratio. Touch controls overlay that image and remain available alongside a
+connected gamepad.
 
 Version 0.0.4 uses the expanded native CPU corpus on Android by default.
 
