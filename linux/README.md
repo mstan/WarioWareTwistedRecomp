@@ -11,9 +11,10 @@ The launcher stores its settings beside the executable and the game uses the
 `saves` folder. When updating, preserve those files. The archive never includes
 player settings, imported inputs or saves.
 
-The standalone package includes SDL2 and needs glibc 2.31 or newer, a compatible
+The standalone package includes SDL2-compat and its SDL3 backend, and needs
+glibc 2.31 or newer, a compatible
 C++ runtime, OpenGL, FreeType, HarfBuzz and an X11 or Wayland desktop. A Steam
-runtime's existing library selection takes precedence over the bundled SDL2.
+runtime's existing library selection takes precedence over the bundled libraries.
 The build targets Valve's Steam Linux Runtime 3 SDK.
 
 ## Controls and motion
@@ -66,9 +67,14 @@ cmake --build build-linux --target WarioWareTwistedRecomp --parallel 2
 python3 tools/package_linux.py --build-dir build-linux \
   --sdl-library /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0 \
   --sdl-license /usr/share/doc/libsdl2-2.0-0/copyright \
+  --sdl3-library /usr/lib/x86_64-linux-gnu/libSDL3.so.0 \
+  --sdl3-license /usr/share/doc/libsdl3-0/copyright \
   --output WarioWareTwistedRecomp-linux-x86_64-review.tar.gz
 ```
 
 Use the SDK's GCC toolchain. Its older Clang 11/libstdc++ 10 combination cannot
 parse the C++20 ranges headers. Do not include generated code, ROMs, BIOS files,
 test snapshots or imported user data in the distribution.
+
+The SDK's SDL2 provider loads SDL3 dynamically. Include both matching libraries;
+`ldd` on SDL2-compat does not list its `dlopen` backend.

@@ -24,10 +24,13 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--sdl-library", type=Path, required=True)
     parser.add_argument("--sdl-license", type=Path, required=True)
+    parser.add_argument("--sdl3-library", type=Path, required=True)
+    parser.add_argument("--sdl3-license", type=Path, required=True)
     args = parser.parse_args()
     binary = args.build_dir / NAME
     elf_x64(binary)
     elf_x64(args.sdl_library)
+    elf_x64(args.sdl3_library)
     if args.output.exists():
         raise FileExistsError("Choose a new staging output; existing archives are preserved")
     if not (args.build_dir / "assets/img").is_dir():
@@ -45,9 +48,13 @@ def main():
         shutil.copy2(ROOT / "variants/warioware_twisted/game.toml", config / "game.toml")
         (stage / "lib").mkdir()
         shutil.copy2(args.sdl_library, stage / "lib/libSDL2-2.0.so.0")
+        # The SDK's SDL2-compat loads SDL3 with dlopen, so ldd alone cannot
+        # establish that the standalone runtime is complete.
+        shutil.copy2(args.sdl3_library, stage / "lib/libSDL3.so.0")
         licenses = stage / "licenses"
         licenses.mkdir()
         shutil.copy2(args.sdl_license, licenses / "SDL2.txt")
+        shutil.copy2(args.sdl3_license, licenses / "SDL3.txt")
         shutil.copy2(ROOT / "LICENSE", licenses / "WarioWareTwistedRecomp.txt")
         shutil.copy2(ROOT / "PERMISSIONS.md", licenses / "PERMISSIONS.md")
         for relative, name in (("gbarecomp", "gbarecomp"),
