@@ -18,8 +18,8 @@ def recompUiRoot = pick("recompUiRoot", "RECOMP_UI_ROOT", new File(gameRoot, "re
 
 ext.gbaGame = [
     applicationId : "com.mstan.wariowaretwisted",
-    versionCode   : 5,
-    versionName   : "0.0.5",
+    versionCode   : 6,
+    versionName   : "0.0.6-rc.1",
     title         : "WarioWare: Twisted!",
     romLabel      : "WarioWare: Twisted! ROM",
     romSha1       : ["f0102d0d6f7596fe853d5d0a94682718278e083a"],
