@@ -23,6 +23,24 @@ aot_scan_end = 0x08133CFC
 static_resume_all = true
 codegen_shards = 16
 
+[[jump_table]]
+addr = 0x08928C34
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "startupObjectCallback"
+note = "Verified USA startup object callback pointer to Thumb 0x08007904"
+
+[[jump_table]]
+addr = 0x0893221C
+stride = 4
+count = 2
+format = "abs32"
+entries_mode = "auto"
+name = "startupDisplayCallbacks"
+note = "Verified USA startup init/update callback pointers to Thumb 0x080186E8 and 0x080186FC"
+
 [[code_copy]]
 runtime_start = 0x030038F0
 source_start = 0x0800010C
