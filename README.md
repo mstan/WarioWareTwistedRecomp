@@ -151,3 +151,12 @@ No copyrighted game ROM or Nintendo BIOS data is distributed by this project.
 
 Part of the **R.A.I.D. — Retro AI Development** static-recompilation
 community.
+
+## Gameplay diagnostics
+
+In the launcher's or in-game menu's Mods page, **Gameplay Diagnostics > Record
+Gameplay** controls the existing local input/state recorder. It is on for a
+fresh installation and remembers your saved On or Off choice independently of
+display settings. Existing legacy recording choices are preserved when first
+opening this control. Recordings use bounded rolling storage under
+`diagnostics/replays` beside the player settings.

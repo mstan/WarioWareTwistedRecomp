@@ -1,7 +1,6 @@
 # WarioWare: Twisted! — native Linux x86_64
 
-This experimental package runs natively, without Proton. Physical Steam Deck
-motion, controls, audio and fullscreen qualification are still pending.
+This experimental package runs natively, without Proton.
 
 Extract the archive into a writable folder and run `./run.sh`. Keep the binary,
 `assets`, `lib`, and `variants` together. Supply your own WarioWare: Twisted! USA
@@ -10,6 +9,11 @@ ROM and retail GBA BIOS in the launcher. Neither input is included.
 The launcher stores its settings beside the executable and the game uses the
 `saves` folder. When updating, preserve those files. The archive never includes
 player settings, imported inputs or saves.
+
+Gameplay Diagnostics > Record Gameplay is visible in Mods and defaults On.
+Its saved On/Off choice is independent of display settings; existing legacy
+recording choices are preserved. Local recordings use bounded rolling storage
+under `diagnostics/replays`.
 
 The standalone package includes SDL2-compat and its SDL3 backend, and needs
 glibc 2.31 or newer, a compatible

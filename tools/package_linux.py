@@ -43,6 +43,8 @@ def main():
         subprocess.run(["strip", "--strip-unneeded", str(stage / NAME)], check=True)
         (stage / NAME).chmod(0o755)
         shutil.copytree(args.build_dir / "assets", stage / "assets")
+        # Immutable title packages only, never the running build's mods/state.toml.
+        shutil.copytree(ROOT / "mods/preloaded", stage / "mods")
         config = stage / "variants/warioware_twisted"
         config.mkdir(parents=True)
         shutil.copy2(ROOT / "variants/warioware_twisted/game.toml", config / "game.toml")
