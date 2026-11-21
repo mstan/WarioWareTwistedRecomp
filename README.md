@@ -57,6 +57,13 @@ Enable **Skip launcher on boot** to start the game directly on later launches.
 On Windows, a compatible controller's motion sensor provides gyro input.
 Holding the left mouse button and dragging horizontally is the fallback.
 
+### Linux and Steam Deck
+
+An experimental native Linux x86_64 build and sanitized package recipe are
+documented in [the Linux guide](linux/README.md). It uses SDL controller motion
+and supports X11 and Wayland. Physical Steam Deck qualification is pending;
+the existing Windows and Android downloads are separate packages.
+
 ## Features
 
 - Native Windows x64 and Android arm64 builds
