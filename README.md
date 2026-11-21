@@ -90,6 +90,11 @@ Controllers are detected automatically. Gyro sensitivity and button mappings
 can be changed from the launcher. On Android, use the on-screen controls and
 the phone's motion sensor.
 
+Current source builds include **Input ? Touchscreen controls** in the in-game
+Settings menu. Turn it off to hide the game buttons; your choice is remembered.
+Hold a finger on an unused area of the game screen to reopen Settings, or use
+the controller menu shortcut. Physical controller input remains available.
+
 ## Building from source
 
 Windows development requires CMake, Ninja, MSYS2 MinGW64, and SDL2:
