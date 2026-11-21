@@ -33,6 +33,15 @@ name = "startupObjectCallback"
 note = "Verified USA startup object callback pointer to Thumb 0x08007904"
 
 [[jump_table]]
+addr = 0x089321AC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "startupTaskCallbacks"
+note = "USA startup task record: init/update/teardown callbacks; native transition reaches Thumb 0x080186D8 through the fourth slot"
+
+[[jump_table]]
 addr = 0x0893221C
 stride = 4
 count = 2
