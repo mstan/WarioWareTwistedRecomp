@@ -64,3 +64,6 @@ Thumbs.db
 signing.local.properties
 *.jks
 *.keystore
+
+# Synthetic finite native-startup regression input.
+!tests/startup-story-input.csv

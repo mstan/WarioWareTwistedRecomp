@@ -1,0 +1,21 @@
+# gbarecomp-keyinput-v1
+# frame,keyinput_active_low
+# Fresh-save startup, title, How to Play, Modes and the first Story opening.
+# Keep gyro centered so native cartridge calibration completes.
+0,0x03FF
+900,0x03FE
+901,0x03FF
+1021,0x03F7
+1022,0x03FF
+1142,0x03FE
+1143,0x03FF
+1863,0x03F7
+1864,0x03FF
+2044,0x03F7
+2045,0x03FF
+2225,0x03FE
+2226,0x03FF
+2826,0x03FE
+2827,0x03FF
+4027,0x03F7
+4028,0x03FF
