@@ -25,6 +25,9 @@ set(RECOMP_UI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/recomp-ui"
 set(GBARECOMP_RUNTIME_UI_ROOT "${RECOMP_UI_ROOT}"
     CACHE PATH "recomp-ui root used by the live GBA runtime adapter")
 
+set(GBARECOMP_ENABLE_MODS ON CACHE BOOL
+    "Enable the WarioWare gameplay diagnostics catalog" FORCE)
+
 add_subdirectory("${GBARECOMP_ROOT}" gbarecomp_build EXCLUDE_FROM_ALL)
 
 function(add_gba_variant TARGET NAME PORT WIN_TITLE GAME_NAME ROM_SHA1 ROM_CRC32)
@@ -116,6 +119,7 @@ if(GBAGAME_RECOMP_UI)
         "${GBARECOMP_ROOT}/src/runtime"
         "${GBARECOMP_ROOT}/src/gba"
         src)
+    target_compile_definitions(game_launcher_ui PRIVATE GBARECOMP_ENABLE_MODS=1)
     recomp_target_launcher_ui(game_launcher_ui CONSOLE gba)
     if(NOT TARGET SDL2::SDL2)
         find_package(SDL2 REQUIRED)
@@ -124,3 +128,11 @@ if(GBAGAME_RECOMP_UI)
     target_link_libraries(${WARIOWARE_TARGET} PRIVATE game_launcher_ui)
     target_compile_definitions(${WARIOWARE_TARGET} PRIVATE GBAGAME_RECOMP_UI)
 endif()
+
+# The title supplies identity and visible feature data; the engine owns the
+# recording provider and saved choice. Never stage player state here.
+add_custom_command(TARGET ${WARIOWARE_TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/mods/preloaded"
+        "$<TARGET_FILE_DIR:${WARIOWARE_TARGET}>/mods"
+    COMMENT "Preloading the WarioWare diagnostics catalog")

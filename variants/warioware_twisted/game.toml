@@ -33,6 +33,222 @@ name = "startupObjectCallback"
 note = "Verified USA startup object callback pointer to Thumb 0x08007904"
 
 [[jump_table]]
+addr = 0x089321AC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "startupTaskCallbacks"
+note = "USA startup task record: init/update/teardown callbacks; native transition reaches Thumb 0x080186D8 through the fourth slot"
+
+[[jump_table]]
+addr = 0x0892FEAC
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "frontendTaskCallbacks00"
+note = "USA frontend task record: four callback/argument pairs in the layout consumed by 0x0800B310"
+
+[[jump_table]]
+addr = 0x08930104
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "frontendTaskCallbacks01"
+note = "USA frontend task record: four callback/argument pairs in the layout consumed by 0x0800B310"
+
+[[jump_table]]
+addr = 0x0893038C
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "frontendTaskCallbacks02"
+note = "USA frontend task record: four callback/argument pairs in the layout consumed by 0x0800B310"
+
+[[jump_table]]
+addr = 0x08935320
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "frontendTaskCallbacks03"
+note = "USA frontend task record: four callback/argument pairs in the layout consumed by 0x0800B310"
+
+[[jump_table]]
+addr = 0x08935468
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "frontendTaskCallbacks04"
+note = "USA frontend task record: four callback/argument pairs in the layout consumed by 0x0800B310"
+
+[[jump_table]]
+addr = 0x08935660
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "frontendTaskCallbacks05"
+note = "USA frontend task record: four callback/argument pairs in the layout consumed by 0x0800B310"
+
+[[jump_table]]
+addr = 0x08935760
+stride = 8
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "frontendTaskCallbacks06"
+note = "USA frontend task record: four callback/argument pairs in the layout consumed by 0x0800B310"
+
+[[jump_table]]
+addr = 0x08018A08
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "frontendInlineCallback00"
+note = "Reviewed Thumb callback literal in frontend code; target begins with a push-lr prologue"
+
+[[jump_table]]
+addr = 0x08019288
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "frontendInlineCallback01"
+note = "Reviewed Thumb callback literal in frontend code; target begins with a push-lr prologue"
+
+[[jump_table]]
+addr = 0x0801931C
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "frontendInlineCallback02"
+note = "Reviewed Thumb callback literal in frontend code; target begins with a push-lr prologue"
+
+[[jump_table]]
+addr = 0x08019C3C
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "frontendInlineCallback03"
+note = "Reviewed Thumb callback literal in frontend code; target begins with a push-lr prologue"
+
+[[jump_table]]
+addr = 0x08019C98
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "frontendInlineCallback04"
+note = "Reviewed Thumb callback literal in frontend code; target begins with a push-lr prologue"
+
+[[jump_table]]
+addr = 0x08019E54
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "frontendInlineCallback05"
+note = "Reviewed Thumb callback literal in frontend code; target begins with a push-lr prologue"
+
+[[jump_table]]
+addr = 0x08019E90
+stride = 4
+count = 1
+format = "abs32"
+entries_mode = "auto"
+name = "frontendInlineCallback06"
+note = "Reviewed Thumb callback literal in frontend code; target begins with a push-lr prologue"
+
+[[jump_table]]
+addr = 0x089283AC
+stride = 16
+count = 3
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetInit00"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x089283B0
+stride = 16
+count = 3
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetUpdate00"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x08928B34
+stride = 16
+count = 5
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetInit01"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x08928B38
+stride = 16
+count = 5
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetUpdate01"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x08928BC4
+stride = 16
+count = 12
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetInit02"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x08928BC8
+stride = 16
+count = 12
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetUpdate02"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x08928C9C
+stride = 16
+count = 3
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetInit03"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x08928CA0
+stride = 16
+count = 3
+format = "abs32"
+entries_mode = "auto"
+name = "frontendWidgetUpdate03"
+note = "Reviewed USA frontend widget descriptor run: init/update pointers followed by two null fields"
+
+[[jump_table]]
+addr = 0x089610C4
+stride = 4
+count = 4
+format = "abs32"
+entries_mode = "auto"
+name = "storyOpeningObjectCallbacks"
+note = "USA Story opening object record includes the valid empty Thumb callback at 0x0802407C, which has no compiler prologue"
+
+[[jump_table]]
 addr = 0x0893221C
 stride = 4
 count = 2

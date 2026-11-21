@@ -30,11 +30,12 @@ ext.gbaGame = [
     orientation   : "landscape-locked",
     gyro          : true,
     // Reinstall the authored runtime payload while preserving player data.
-    payloadVersion: "6",
+    payloadVersion: "7",
     setupNote     : "Rotate the phone around its screen-normal axis to play; touch " +
                     "and gamepads are also supported.",
     variant       : "warioware_twisted",
     gameToml      : new File(rootDir, "game_android.toml"),
+    payloadDirs   : [[from: new File(gameRoot, "mods/preloaded"), into: "mods"]],
     gameRoot      : gameRoot,
     engineRoot    : engineRoot,
     recompUiRoot  : recompUiRoot,

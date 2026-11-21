@@ -25,6 +25,29 @@ coverage. Native coverage requires zero dispatch misses and zero interpreted
 instructions, with healing disabled. A successful build alone establishes
 neither coverage nor execution correctness.
 
+## Startup and Story callback regression
+
+`tests/startup-story-input.csv` exercises a fresh save through the title,
+How to Play, Modes and the first Story opening. It covers frontend task,
+inline callback and widget descriptor paths before the microgame catalog.
+Regenerate the cartridge normally after changing its callback metadata.
+Use a fresh, disposable save path for every run:
+
+```sh
+GBARECOMP_INPUT_REPLAY=tests/startup-story-input.csv \
+GBARECOMP_GYRO_TEST=0 GBARECOMP_STRICT_STATIC=1 \
+GBARECOMP_SELFHEAL_RECOMPILE=0 \
+./build/WarioWareTwistedRecomp --rom /path/to/your.gba \
+  --bios /path/to/your-bios.bin --no-launcher --no-window --volume 0 \
+  --save-path build-coverage/startup-story/fresh.sav --frames 4800 \
+  --dump-png build-coverage/startup-story/final.png
+```
+
+The process must exit normally with zero dispatch misses, interpreted
+instructions and healed functions. A successful title-screen boot alone does
+not cover the later callbacks. This finite replay is independent of older
+build-specific execution snapshots.
+
 ## Jump to individual microgames
 
 Work entirely in ignored `build-coverage/` directories. Keep the phone's save
